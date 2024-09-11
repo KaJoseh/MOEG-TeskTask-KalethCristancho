@@ -1,0 +1,13 @@
+{
+    "buildings": [
+        {
+            "id":"hire_tower",
+            "name": "Hiring Tower of Heroes",
+            "description": "A tower capable of hiring mighty heroes to fight alongside us",
+            "cost": 100,
+            "settings": {
+                "hireSlots": 5
+            }
+        }
+    ]
+}
