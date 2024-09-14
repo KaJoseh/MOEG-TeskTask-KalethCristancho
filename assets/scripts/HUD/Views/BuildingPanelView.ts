@@ -1,5 +1,5 @@
-import { _decorator, Component, Node, Tween, tween, Vec2, Vec3 } from 'cc';
-import { BuildingPanelViewModel } from '../ViewModels/BuildingPanelViewModel';
+import { _decorator, Component, Label, Node, Tween, tween, Vec2, Vec3 } from 'cc';
+import { BuildingPanelViewModel, PanelSettings } from '../ViewModels/BuildingPanelViewModel';
 import { Subscription } from 'rxjs';
 const { ccclass, property } = _decorator;
 
@@ -11,6 +11,11 @@ export class BuildingPanelView extends Component {
     public getPanelContainer():Node | null{
         return this.panelContainer;
     }
+
+    @property(Label)
+    private buildingNameLabel:Label | null = null;
+    @property(Label)
+    private buildingDescLabel:Label | null = null;
 
     private _viewmodel!:BuildingPanelViewModel;
     public getViewModel():BuildingPanelViewModel{
@@ -37,6 +42,17 @@ export class BuildingPanelView extends Component {
             this.togglePanelView(value);           
         });
         this._subscriptionsArray.push(togglePanelViewSubscription);
+
+        const panelSettingsSubscription = this._viewmodel.panelSettings$.subscribe((panelSettings: PanelSettings) => {
+            if(this.buildingNameLabel){
+                this.buildingNameLabel.string = panelSettings.name;
+            }
+            if(this.buildingDescLabel){
+                this.buildingDescLabel.string = panelSettings.description;
+            }
+            console.log(`panel hire slots: ${panelSettings.hireSlots}`);
+        });
+        this._subscriptionsArray.push(panelSettingsSubscription);
     }
 
     protected onDestroy(): void {

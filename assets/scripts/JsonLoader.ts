@@ -30,24 +30,3 @@ export class JsonLoader{
         });
     }
 }
-export class HeroesJSON{
-    heroes!: Array<{
-        id:string;
-        name: string;
-        description:string;
-        cost:number;
-        summonCooldown:number;
-        type:string;
-        rank:string;
-    }>;
-}
-
-export class BuildingClassJSON{
-    id!:string;
-    name!:string;
-    description!:string;
-    cost!:number;
-    settings!:{
-        hireSlots: number;
-    }
-}

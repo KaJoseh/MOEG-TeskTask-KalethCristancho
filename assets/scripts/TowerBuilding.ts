@@ -1,14 +1,19 @@
-import { _decorator, Component, EventMouse, EventTouch, Input, Node } from 'cc';
+import { _decorator, CCString, Component, EventMouse, EventTouch, Input, Node } from 'cc';
 import { Subject } from 'rxjs';
+import { BuildingData, GameSettingsManager } from './GameSettingsManager';
 const { ccclass, property } = _decorator;
 
 @ccclass('TowerBuilding')
 export class TowerBuilding extends Component {
     
-    public static onAnyTowerBuildingClicked$: Subject<void> = new Subject<void>();
+    public static onAnyTowerBuildingClicked$: Subject<BuildingData> = new Subject<BuildingData>();
 
+    @property(CCString)
+    private buildingId: string = "";
     @property(Node)
     private towerSpriteNode:Node | null = null;
+
+    private _buildingData:BuildingData | undefined;
     
     protected onLoad(): void {
         this.towerSpriteNode?.on(Input.EventType.TOUCH_START, this.onTowerSpriteTouchStart, this);
@@ -18,9 +23,21 @@ export class TowerBuilding extends Component {
         this.towerSpriteNode?.off(Input.EventType.TOUCH_START, this.onTowerSpriteTouchStart, this);
     }
 
+    protected start(): void {
+        const buildingData = GameSettingsManager.Instance?.getBuildingDataById(this.buildingId);
+        if(buildingData !== undefined){
+            this._buildingData = buildingData;
+        }
+    }
+
     private onTowerSpriteTouchStart(event: EventTouch){
-        TowerBuilding.onAnyTowerBuildingClicked$.next();
-        console.log("TOWER CLICKED!");
+        if(this._buildingData !== undefined){
+            TowerBuilding.onAnyTowerBuildingClicked$.next(this._buildingData);
+            console.log("TOWER CLICKED!");
+        }
+        else{
+            console.warn("TowerBuilding | onTowerSpriteTouchStart: buildingData is undefined.")
+        }
     }
 }
 
