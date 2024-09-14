@@ -18,7 +18,7 @@ export class HUDManager extends Component {
     protected onLoad(): void {
         HUDManager.Instance = this;
         this._hudClicksManager = this.node.getComponent(HUDClicksManager);
-        
+
         if(this.buildingPanelView){
             const buildingPanelViewModel = this.buildingPanelView.getViewModel();
             const buildingPanelToggleSubscription = buildingPanelViewModel.togglePanelVisible$.subscribe((value:boolean) => {
@@ -31,7 +31,7 @@ export class HUDManager extends Component {
     }
 
     protected onDestroy(): void {
-        
+        this._viewSubscriptionsArray.forEach(sub => sub.unsubscribe());
     }
 
     public isPositionOverBuildingPanelContainer(inputPosition:Vec2): boolean{
