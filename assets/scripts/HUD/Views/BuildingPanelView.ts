@@ -8,14 +8,31 @@ export class BuildingPanelView extends Component {
 
     @property(Node)
     private panelContainer:Node | null = null;
+    public getPanelContainer():Node | null{
+        return this.panelContainer;
+    }
 
-    private _viewmodel:BuildingPanelViewModel = new BuildingPanelViewModel();
-    private _subscriptionsArray:Subscription[] = [];
+    private _viewmodel!:BuildingPanelViewModel;
+    public getViewModel():BuildingPanelViewModel{
+        if(this._viewmodel === undefined || this._viewmodel === null){
+            console.log("BuildingPanelView | Viewmodel null from Getter, creating new one");
+            this._viewmodel = new BuildingPanelViewModel();
+        }
+
+        return this._viewmodel;
+    }
 
     private _showAnimation:Tween<Node | null> = new Tween<Node | null>();
     private _hideAnimation:Tween<Node | null> = new Tween<Node | null>();
 
+    private _subscriptionsArray:Subscription[] = [];
+    
     protected onLoad(): void {
+        if(this._viewmodel === undefined || this._viewmodel === null){
+            this._viewmodel = new BuildingPanelViewModel();
+            console.log("BuildingPanelView | Viewmodel null from OnLoad, creating new one");
+        }
+        
         const togglePanelViewSubscription = this._viewmodel.togglePanelVisible$.subscribe((value:boolean) => {
             this.togglePanelView(value);           
         });
