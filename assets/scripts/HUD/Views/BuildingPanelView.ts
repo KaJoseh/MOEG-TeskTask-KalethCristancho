@@ -81,7 +81,7 @@ export class BuildingPanelView extends Component {
         }
 
         const toggleAnimDuration:number = 1;
-        const positionOnShow:Vec3 = new Vec3(0, -570, 0);
+        const positionOnShow:Vec3 = new Vec3(0, -620, 0);
         const positionOnHided:Vec3 = new Vec3(0, -1500, 0);
         this._showAnimation = tween(this.panelContainer).to(toggleAnimDuration, {position: positionOnShow}, {easing:'expoOut'});
         this._hideAnimation = tween(this.panelContainer).to(toggleAnimDuration, {position: positionOnHided}, {easing:'expoOut'});
