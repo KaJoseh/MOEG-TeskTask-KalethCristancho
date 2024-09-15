@@ -23,8 +23,8 @@ export class TowerBuilding extends Component {
         this.towerSpriteNode?.off(Input.EventType.TOUCH_START, this.onTowerSpriteTouchStart, this);
     }
 
-    protected start(): void {
-        const buildingData = GameSettingsManager.Instance?.getBuildingDataById(this.buildingId);
+    protected async start(): Promise<void> {
+        const buildingData = await GameSettingsManager.Instance?.getBuildingDataById(this.buildingId);
         if(buildingData === undefined){
             return;
         }
