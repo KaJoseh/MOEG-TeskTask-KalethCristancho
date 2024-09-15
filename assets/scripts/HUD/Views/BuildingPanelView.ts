@@ -79,7 +79,7 @@ export class BuildingPanelView extends Component {
         }
     }
 
-    private handleHeroIcons(heroIconList: HeroIconParams[]){
+    private handleHeroIcons(heroIconParamsList: HeroIconParams[]){
         //destroy every existing icon
         // this.heroesIconListContainer?.destroyAllChildren();
         this.heroesIconListContainer?.children.forEach(child =>{
@@ -90,13 +90,13 @@ export class BuildingPanelView extends Component {
 
         //instantiate new icons
         //get view component from icons and call its setup method with the hero Id
-        heroIconList.forEach(heroIcon => {
+        heroIconParamsList.forEach(heroIconParam => {
             let newIcon = instantiate(this.heroIconBase);
             if(newIcon){
                 newIcon.parent = this.heroesIconListContainer;
                 newIcon.setPosition(0,0,0);
                 newIcon.active = true;
-                newIcon.getComponent(HeroIconView)?.Init(heroIcon.heroId);
+                newIcon.getComponent(HeroIconView)?.Init(heroIconParam.heroId, heroIconParam.rankId, heroIconParam.elementId);
             }
         });
     }

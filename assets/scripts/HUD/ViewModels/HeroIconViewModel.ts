@@ -14,15 +14,17 @@ export class HeroIconViewModel{
 
     }
 
-    public setUpIcon(heroId:string){
+    public setUpIcon(heroId:string, rankId:string, elementId: string){
         const hudManager = HUDManager.Instance;
         if(!hudManager){
             return;
         }
         
         const heroIcon = hudManager.getHeroIconSpriteFrame(heroId);
-        if(heroIcon){
-            let newIconSettings = new HeroIconSettings(heroIcon);
+        const rankIcon = hudManager.getRankSpriteFrame(rankId);
+        const elementIcon = hudManager.getElementSpriteFrame(elementId);
+        if(heroIcon && rankIcon && elementIcon){
+            let newIconSettings = new HeroIconSettings(heroIcon, rankIcon, elementIcon);
             this._iconSettings.next(newIconSettings);
         }
     }
@@ -30,9 +32,13 @@ export class HeroIconViewModel{
 
 export class HeroIconSettings{
     heroSpriteFrame: SpriteFrame | null = null;
+    rankSpriteFrame: SpriteFrame | null = null;
+    elementSpriteFrame: SpriteFrame | null = null;
 
-    constructor(heroSprite: SpriteFrame){
+    constructor(heroSprite: SpriteFrame, rankSprite: SpriteFrame, elementSprite: SpriteFrame){
         this.heroSpriteFrame = heroSprite;
+        this.rankSpriteFrame = rankSprite;
+        this.elementSpriteFrame = elementSprite;
     }
 }
 

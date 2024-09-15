@@ -71,12 +71,12 @@ export class HUDManager extends Component {
     }
 
     public getRankSpriteFrame(rankId:string) : SpriteFrame | null{
-        const rankIcon = this.rankSpriteDictList.filter(icon => icon.rankId === rankId);
+        const rankIcon = this.rankSpriteDictList.filter(icon => icon.rankId == rankId);
         return rankIcon[0].rankSpriteFrame;
     }
 
     public getElementSpriteFrame(elementId:string) : SpriteFrame | null{
-        const elementIcon = this.elementSpriteDictList.filter(icon => icon.elementId === elementId);
+        const elementIcon = this.elementSpriteDictList.filter(icon => icon.elementId == elementId);
         return elementIcon[0].elementSpriteFrame;
     }
 

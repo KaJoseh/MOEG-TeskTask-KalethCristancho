@@ -8,6 +8,10 @@ export class HeroIconView extends Component {
     
     @property(Sprite)
     private heroIconSpriteRenderer:Sprite | null = null;
+    @property(Sprite)
+    private rankIconSpriteRenderer:Sprite | null = null;
+    @property(Sprite)
+    private elementIconSpriteRenderer:Sprite | null = null;
 
     private _subscriptionsArray:Subscription[] = [];
 
@@ -17,6 +21,12 @@ export class HeroIconView extends Component {
         const iconSettingsSubscription = viewModel.iconSettings$.subscribe((heroIconSettings:HeroIconSettings) =>{
             if(this.heroIconSpriteRenderer){
                 this.heroIconSpriteRenderer.spriteFrame = heroIconSettings.heroSpriteFrame;
+            }
+            if(this.rankIconSpriteRenderer){
+                this.rankIconSpriteRenderer.spriteFrame = heroIconSettings.rankSpriteFrame;
+            }
+            if(this.elementIconSpriteRenderer){
+                this.elementIconSpriteRenderer.spriteFrame = heroIconSettings.elementSpriteFrame;
             }
         });
         this._subscriptionsArray.push(iconSettingsSubscription);
@@ -34,10 +44,10 @@ export class HeroIconView extends Component {
         return this._viewmodel;
     }
 
-    public Init(heroId:string){
+    public Init(heroId:string, rankId:string, elementId: string){
         console.log(`Init icon for ${heroId}`)
         const viewModel = this.getViewModel();
-        viewModel.setUpIcon(heroId);
+        viewModel.setUpIcon(heroId, rankId, elementId);
     }
 }
 

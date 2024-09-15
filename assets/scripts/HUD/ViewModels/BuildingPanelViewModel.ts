@@ -41,7 +41,7 @@ export class BuildingPanelViewModel{
 
             let newHeroIconParams: HeroIconParams[] = [];
             buildingData.settings.summonableHeroes.forEach(hero =>{
-                newHeroIconParams.push(new HeroIconParams(hero.id));
+                newHeroIconParams.push(new HeroIconParams(hero.id, hero.rank, hero.type));
             });
             this._heroIconList.next(newHeroIconParams);
         }
@@ -77,8 +77,12 @@ export class PanelSettings{
 
 export class HeroIconParams{
     heroId:string;
+    rankId:string;
+    elementId:string;
 
-    constructor(heroId:string){
+    constructor(heroId:string, rankId:string, elementId:string){
         this.heroId = heroId;
+        this.rankId = rankId;
+        this.elementId = elementId;
     }
 }
