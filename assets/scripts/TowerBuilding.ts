@@ -25,15 +25,25 @@ export class TowerBuilding extends Component {
 
     protected start(): void {
         const buildingData = GameSettingsManager.Instance?.getBuildingDataById(this.buildingId);
-        if(buildingData !== undefined){
-            this._buildingData = buildingData;
+        if(buildingData === undefined){
+            return;
         }
+
+        //Add every hero as summonable
+        const heroData = GameSettingsManager.Instance?.getHeroesData();
+        if(heroData !== undefined){
+            heroData.forEach(hero => {
+                buildingData.settings.summonableHeroes.push(hero);
+            });
+        }
+
+        this._buildingData = buildingData;
     }
 
     private onTowerSpriteTouchStart(event: EventTouch){
         if(this._buildingData !== undefined){
             TowerBuilding.onAnyTowerBuildingClicked$.next(this._buildingData);
-            console.log("TOWER CLICKED!");
+            // console.log("TOWER CLICKED!");
         }
         else{
             console.warn("TowerBuilding | onTowerSpriteTouchStart: buildingData is undefined.")

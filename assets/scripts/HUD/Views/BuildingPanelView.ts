@@ -1,6 +1,7 @@
-import { _decorator, Component, Label, Node, Tween, tween, Vec2, Vec3 } from 'cc';
-import { BuildingPanelViewModel, PanelSettings } from '../ViewModels/BuildingPanelViewModel';
+import { _decorator, Component, instantiate, Label, Node, Prefab, Tween, tween, Vec2, Vec3 } from 'cc';
+import { BuildingPanelViewModel, HeroIconParams, PanelSettings } from '../ViewModels/BuildingPanelViewModel';
 import { Subscription } from 'rxjs';
+import { HeroIconView } from './HeroIconView';
 const { ccclass, property } = _decorator;
 
 @ccclass('BuildingPanelView')
@@ -16,14 +17,17 @@ export class BuildingPanelView extends Component {
     private buildingNameLabel:Label | null = null;
     @property(Label)
     private buildingDescLabel:Label | null = null;
+    @property(Node)
+    private heroIconBase:Node | null = null;
+    @property(Node)
+    private heroesIconListContainer:Node | null = null;
 
-    private _viewmodel!:BuildingPanelViewModel;
+    private _viewmodel:BuildingPanelViewModel | null = null;
     public getViewModel():BuildingPanelViewModel{
-        if(this._viewmodel === undefined || this._viewmodel === null){
+        if (!this._viewmodel) {
             console.log("BuildingPanelView | Viewmodel null from Getter, creating new one");
             this._viewmodel = new BuildingPanelViewModel();
         }
-
         return this._viewmodel;
     }
 
@@ -33,17 +37,14 @@ export class BuildingPanelView extends Component {
     private _subscriptionsArray:Subscription[] = [];
     
     protected onLoad(): void {
-        if(this._viewmodel === undefined || this._viewmodel === null){
-            this._viewmodel = new BuildingPanelViewModel();
-            console.log("BuildingPanelView | Viewmodel null from OnLoad, creating new one");
-        }
+        const viewModel = this.getViewModel();
         
-        const togglePanelViewSubscription = this._viewmodel.togglePanelVisible$.subscribe((value:boolean) => {
+        const togglePanelViewSubscription = viewModel.togglePanelVisible$.subscribe((value:boolean) => {
             this.togglePanelView(value);           
         });
         this._subscriptionsArray.push(togglePanelViewSubscription);
 
-        const panelSettingsSubscription = this._viewmodel.panelSettings$.subscribe((panelSettings: PanelSettings) => {
+        const panelSettingsSubscription = viewModel.panelSettings$.subscribe((panelSettings: PanelSettings) => {
             if(this.buildingNameLabel){
                 this.buildingNameLabel.string = panelSettings.name;
             }
@@ -53,6 +54,10 @@ export class BuildingPanelView extends Component {
             console.log(`panel hire slots: ${panelSettings.hireSlots}`);
         });
         this._subscriptionsArray.push(panelSettingsSubscription);
+
+        const heroIconListSubscription = viewModel.heroIconList$.subscribe((heroIconList: HeroIconParams[]) =>{
+            this.handleHeroIcons(heroIconList);
+        });
     }
 
     protected onDestroy(): void {
@@ -72,6 +77,28 @@ export class BuildingPanelView extends Component {
             this._showAnimation.stop();
             this._hideAnimation.start();
         }
+    }
+
+    private handleHeroIcons(heroIconList: HeroIconParams[]){
+        //destroy every existing icon
+        // this.heroesIconListContainer?.destroyAllChildren();
+        this.heroesIconListContainer?.children.forEach(child =>{
+            if(child !== this.heroIconBase && child.isValid){
+                child.destroy();
+            }
+        });
+
+        //instantiate new icons
+        //get view component from icons and call its setup method with the hero Id
+        heroIconList.forEach(heroIcon => {
+            let newIcon = instantiate(this.heroIconBase);
+            if(newIcon){
+                newIcon.parent = this.heroesIconListContainer;
+                newIcon.setPosition(0,0,0);
+                newIcon.active = true;
+                newIcon.getComponent(HeroIconView)?.Init(heroIcon.heroId);
+            }
+        });
     }
 
     private setUpAnimations(){

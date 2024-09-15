@@ -1,4 +1,4 @@
-import { _decorator, Component, Node } from 'cc';
+import { _decorator, Component } from 'cc';
 import { JsonLoader } from './JsonLoader';
 const { ccclass, property } = _decorator;
 
@@ -49,6 +49,10 @@ export class GameSettingsManager extends Component {
         return buildingData;
     }
 
+    public getHeroesData(): HeroData[] | undefined {
+        const heroData = this._heroesJsonData?.heroes;
+        return heroData;
+    }
 }
 
 export interface BuildingsJsonData{
@@ -61,6 +65,7 @@ export interface BuildingData{
     cost:number;
     settings:{
         hireSlots: number;
+        summonableHeroes: HeroData[];
     }
 }
 

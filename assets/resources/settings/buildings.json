@@ -6,7 +6,8 @@
             "description": "A tower capable of hiring mighty heroes to fight alongside us",
             "cost": 100,
             "settings": {
-                "hireSlots": 5
+                "hireSlots": 5,
+                "summonableHeroes" : []
             }
         }
     ]

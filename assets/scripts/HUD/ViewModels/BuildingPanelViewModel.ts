@@ -1,9 +1,9 @@
-import { Vec2 } from "cc";
+import { Sprite, Vec2 } from "cc";
 import { BehaviorSubject, Subject } from "rxjs";
 import { TowerBuilding } from "../../TowerBuilding";
 import { HUDClicksManager } from "../HUDClicksManager";
 import { HUDManager } from "../HUDManager";
-import { BuildingData } from "../../GameSettingsManager";
+import { BuildingData, HeroData } from "../../GameSettingsManager";
 
 export class BuildingPanelViewModel{
 
@@ -11,6 +11,10 @@ export class BuildingPanelViewModel{
     private _panelSettings: BehaviorSubject<PanelSettings> = new BehaviorSubject<PanelSettings>(new PanelSettings("", "", 0));
     public get panelSettings$(){
         return this._panelSettings.asObservable();
+    }
+    private _heroIconList: Subject<HeroIconParams[]> = new Subject<HeroIconParams[]>();
+    public get heroIconList$(){
+        return this._heroIconList.asObservable();
     }
 
     private _isPanelVisible:boolean = false;
@@ -28,8 +32,18 @@ export class BuildingPanelViewModel{
     private onAnyTowerBuildingClickedCallback(buildingData: BuildingData){
         this.togglePanel(!this._isPanelVisible)
         if(this._isPanelVisible){
-            const newPanelSettings = new PanelSettings(buildingData.name, buildingData.description, buildingData.settings.hireSlots);
+            const newPanelSettings = new PanelSettings(
+                buildingData.name,
+                buildingData.description, 
+                buildingData.settings.hireSlots, 
+            );
             this._panelSettings.next(newPanelSettings);
+
+            let newHeroIconParams: HeroIconParams[] = [];
+            buildingData.settings.summonableHeroes.forEach(hero =>{
+                newHeroIconParams.push(new HeroIconParams(hero.id));
+            });
+            this._heroIconList.next(newHeroIconParams);
         }
     }
 
@@ -61,4 +75,10 @@ export class PanelSettings{
     }
 }
 
+export class HeroIconParams{
+    heroId:string;
 
+    constructor(heroId:string){
+        this.heroId = heroId;
+    }
+}

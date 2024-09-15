@@ -1,8 +1,32 @@
-import { _decorator, Component, Node, UITransform, Vec2, Vec3 } from 'cc';
+import { _decorator, CCString, Component, Node, SpriteFrame, UITransform, Vec2, Vec3 } from 'cc';
 import { BuildingPanelView } from './Views/BuildingPanelView';
 import { Subject, Subscription } from 'rxjs';
 import { HUDClicksManager } from './HUDClicksManager';
 const { ccclass, property } = _decorator;
+
+@ccclass('HeroSpriteDictionary')
+class HeroSpriteDictionary{
+    @property(CCString)
+    heroId:string = "";
+    @property(SpriteFrame)
+    heroSpriteFrame:SpriteFrame | null = null;
+}
+
+@ccclass('RankSpriteDictionary')
+class RankSpriteDictionary{
+    @property(CCString)
+    rankId:string = "";
+    @property(SpriteFrame)
+    rankSpriteFrame:SpriteFrame | null = null;
+}
+
+@ccclass('ElementSpriteDictionary')
+class ElementSpriteDictionary{
+    @property(CCString)
+    elementId:string = "";
+    @property(SpriteFrame)
+    elementSpriteFrame:SpriteFrame | null = null;
+}
 
 @ccclass('HUDManager')
 export class HUDManager extends Component {
@@ -11,6 +35,13 @@ export class HUDManager extends Component {
 
     @property(BuildingPanelView)
     private buildingPanelView:BuildingPanelView | null = null;
+
+    @property({ type: [HeroSpriteDictionary] })
+    private heroIconSpriteDictList: HeroSpriteDictionary[] = [];
+    @property({ type: [RankSpriteDictionary] })
+    private rankSpriteDictList: RankSpriteDictionary[] = [];
+    @property({ type: [ElementSpriteDictionary] })
+    private elementSpriteDictList: ElementSpriteDictionary[] = [];
 
     private _hudClicksManager:HUDClicksManager | null = null;
     private _viewSubscriptionsArray:Subscription[] = [];
@@ -32,6 +63,21 @@ export class HUDManager extends Component {
 
     protected onDestroy(): void {
         this._viewSubscriptionsArray.forEach(sub => sub.unsubscribe());
+    }
+
+    public getHeroIconSpriteFrame(heroId:string) : SpriteFrame | null{
+        const heroIcon = this.heroIconSpriteDictList.filter(icon => icon.heroId == heroId);
+        return heroIcon[0].heroSpriteFrame;
+    }
+
+    public getRankSpriteFrame(rankId:string) : SpriteFrame | null{
+        const rankIcon = this.rankSpriteDictList.filter(icon => icon.rankId === rankId);
+        return rankIcon[0].rankSpriteFrame;
+    }
+
+    public getElementSpriteFrame(elementId:string) : SpriteFrame | null{
+        const elementIcon = this.elementSpriteDictList.filter(icon => icon.elementId === elementId);
+        return elementIcon[0].elementSpriteFrame;
     }
 
     public isPositionOverBuildingPanelContainer(inputPosition:Vec2): boolean{
