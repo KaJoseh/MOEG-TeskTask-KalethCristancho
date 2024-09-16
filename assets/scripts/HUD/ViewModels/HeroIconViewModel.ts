@@ -1,5 +1,4 @@
 import { BehaviorSubject, Subject } from "rxjs";
-import { GameSettingsManager } from "../../GameSettingsManager";
 import { HUDManager } from "../HUDManager";
 import { SpriteFrame } from "cc";
 

@@ -1,7 +1,5 @@
 import { SpriteFrame } from "cc";
 
-
-
 export class SummoningSlotViewModel{
     
     constructor(){

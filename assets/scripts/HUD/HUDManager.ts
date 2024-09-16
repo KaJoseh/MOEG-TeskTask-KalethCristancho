@@ -3,7 +3,7 @@ import { BuildingPanelView } from './Views/BuildingPanelView';
 import { Subject, Subscription } from 'rxjs';
 import { HUDClicksManager } from './HUDClicksManager';
 import { onAnyTowerBuildingClickedArgs, TowerBuilding } from '../TowerBuilding';
-import { BuildingData } from '../GameSettingsManager';
+import { BuildingData } from '../GameData';
 const { ccclass, property } = _decorator;
 
 @ccclass('HeroSpriteDictionary')

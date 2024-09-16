@@ -1,5 +1,6 @@
 import { _decorator, Component } from 'cc';
 import { JsonLoader } from './JsonLoader';
+import { BuildingData, BuildingsJsonData, HeroData, HeroesJsonData, InitialStateJsonData } from './GameData';
 const { ccclass, property } = _decorator;
 
 @ccclass('GameSettingsManager')
@@ -71,40 +72,5 @@ export class GameSettingsManager extends Component {
     public getHeroesData(): HeroData[] | undefined {
         const heroData = this._heroesJsonData?.heroes;
         return heroData;
-    }
-}
-
-export interface BuildingsJsonData{
-    buildings: Array<BuildingData>;
-}
-export interface BuildingData{
-    id:string;
-    name:string;
-    description:string;
-    cost:number;
-    settings:{
-        hireSlots: number;
-        summonableHeroes: HeroData[];
-    }
-}
-
-export interface HeroesJsonData{
-    heroes: Array<HeroData>;
-}
-export interface HeroData{
-    id:string;
-    name: string;
-    description:string;
-    cost:number;
-    summonCooldown:number;
-    type:string;
-    rank:string;
-}
-
-export interface InitialStateJsonData{
-    state: {
-        currency:number;
-        buildings: Array<string>;
-        heroes: Array<string>;
     }
 }

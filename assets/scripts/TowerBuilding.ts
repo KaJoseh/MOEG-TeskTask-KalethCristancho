@@ -1,7 +1,8 @@
 import { _decorator, CCString, Component, EventMouse, EventTouch, Input, Node } from 'cc';
 import { Subject } from 'rxjs';
-import { BuildingData, GameSettingsManager } from './GameSettingsManager';
+import { GameSettingsManager } from './GameSettingsManager';
 import { IHasProgress } from './IHasProgress';
+import { BuildingData } from './GameData';
 const { ccclass, property } = _decorator;
 
 enum State{

@@ -3,8 +3,8 @@ import { BehaviorSubject, Subject } from "rxjs";
 import { TowerBuilding } from "../../TowerBuilding";
 import { HUDClicksManager } from "../HUDClicksManager";
 import { HUDManager } from "../HUDManager";
-import { BuildingData, HeroData } from "../../GameSettingsManager";
 import { HeroIconViewModel } from "./HeroIconViewModel";
+import { BuildingData } from "../../GameData";
 
 export class BuildingPanelViewModel{
 
