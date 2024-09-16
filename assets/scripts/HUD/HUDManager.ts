@@ -2,6 +2,8 @@ import { _decorator, CCString, Component, Node, SpriteFrame, UITransform, Vec2, 
 import { BuildingPanelView } from './Views/BuildingPanelView';
 import { Subject, Subscription } from 'rxjs';
 import { HUDClicksManager } from './HUDClicksManager';
+import { TowerBuilding } from '../TowerBuilding';
+import { BuildingData } from '../GameSettingsManager';
 const { ccclass, property } = _decorator;
 
 @ccclass('HeroSpriteDictionary')
@@ -44,11 +46,16 @@ export class HUDManager extends Component {
     private elementSpriteDictList: ElementSpriteDictionary[] = [];
 
     private _hudClicksManager:HUDClicksManager | null = null;
-    private _viewSubscriptionsArray:Subscription[] = [];
+    private _subscriptionsArray:Subscription[] = [];
 
     protected onLoad(): void {
         HUDManager.Instance = this;
         this._hudClicksManager = this.node.getComponent(HUDClicksManager);
+
+        const onAnyTowerClickedSubscription = TowerBuilding.onAnyTowerBuildingClicked$.subscribe((buildingData: BuildingData) => {
+            this.openBuildingPanel(buildingData);
+        });
+        this._subscriptionsArray.push(onAnyTowerClickedSubscription);
 
         if(this.buildingPanelView){
             const buildingPanelViewModel = this.buildingPanelView.getViewModel();
@@ -57,12 +64,12 @@ export class HUDManager extends Component {
                     this._hudClicksManager.setPreventSwallowEventTouch(!value);
                 }
             });
-            this._viewSubscriptionsArray.push(buildingPanelToggleSubscription);
+            this._subscriptionsArray.push(buildingPanelToggleSubscription);
         }
     }
 
     protected onDestroy(): void {
-        this._viewSubscriptionsArray.forEach(sub => sub.unsubscribe());
+        this._subscriptionsArray.forEach(sub => sub.unsubscribe());
     }
 
     public getHeroIconSpriteFrame(heroId:string) : SpriteFrame | null{
@@ -93,6 +100,12 @@ export class HUDManager extends Component {
         }
 
         return this.checkPositionIsOverNode(inputPosition, buildingPanelContainer);
+    }
+
+    public openBuildingPanel(buildingData:BuildingData){
+        if(this.buildingPanelView){
+            this.buildingPanelView.getViewModel().openPanel(buildingData);
+        }
     }
 
     private checkPositionIsOverNode(inputPosition:Vec2, nodeToCheck:Node): boolean{

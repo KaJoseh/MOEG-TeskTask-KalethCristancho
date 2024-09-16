@@ -32,16 +32,12 @@ export class BuildingPanelViewModel{
     private _isPanelVisible:boolean = false;
 
     constructor(){
-        TowerBuilding.onAnyTowerBuildingClicked$.subscribe((buildingData: BuildingData) => {
-            this.onAnyTowerBuildingClickedCallback(buildingData);
-        });
-
         HUDClicksManager.Instance?.onHUDClicked$.subscribe((clickPosition: Vec2) => {
             this.onHUDClickedCallback(clickPosition);
         });
     }
 
-    private onAnyTowerBuildingClickedCallback(buildingData: BuildingData){
+    public openPanel(buildingData: BuildingData){
         this.togglePanel(!this._isPanelVisible)
         if(this._isPanelVisible){
             this._selectedHeroIconViewModel = null;
