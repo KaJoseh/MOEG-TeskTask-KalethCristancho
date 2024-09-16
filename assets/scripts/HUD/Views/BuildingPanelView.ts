@@ -30,7 +30,6 @@ export class BuildingPanelView extends Component {
     private _viewmodel:BuildingPanelViewModel | null = null;
     public getViewModel():BuildingPanelViewModel{
         if (!this._viewmodel) {
-            console.log("BuildingPanelView | Viewmodel null from Getter, creating new one");
             this._viewmodel = new BuildingPanelViewModel();
         }
         return this._viewmodel;
@@ -44,6 +43,10 @@ export class BuildingPanelView extends Component {
     protected onLoad(): void {
         const viewModel = this.getViewModel();
         
+        this.hireButton?.node.on(Button.EventType.CLICK, (button: Button) => {
+            this._viewmodel?.hireSelectedHero();
+        });
+
         const togglePanelViewSubscription = viewModel.togglePanelVisible$.subscribe((value:boolean) => {
             this.togglePanelView(value);           
         });

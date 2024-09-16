@@ -26,6 +26,7 @@ export class BuildingPanelViewModel{
         return this._hireButtonPriceValue.asObservable();
     }
 
+    private _currentOnHireCallback:(hiredHero:any) => void = (hiredHero:any) => void {};
     private _selectedHeroIconViewModel:HeroIconViewModel | null = null;
     private _currentHeroIconViewModelArray:HeroIconViewModel[] = [];
     
@@ -37,7 +38,7 @@ export class BuildingPanelViewModel{
         });
     }
 
-    public openPanel(buildingData: BuildingData){
+    public openPanel(buildingData: BuildingData, onHireCallback:(hiredHero:any) => void){
         this.togglePanel(!this._isPanelVisible)
         if(this._isPanelVisible){
             this._selectedHeroIconViewModel = null;
@@ -56,6 +57,7 @@ export class BuildingPanelViewModel{
                 newHeroIconParams.push(new HeroIconParams(hero.id, hero.rank, hero.type, hero.cost));
             });
             this._heroIconListToCreate.next(newHeroIconParams);
+            this._currentOnHireCallback = onHireCallback;
         }
     }
 
@@ -84,10 +86,17 @@ export class BuildingPanelViewModel{
         this._currentHeroIconViewModelArray = heroIconViewModelArray;
     }
 
+    public hireSelectedHero(){
+        console.log("Firing hire callback!");
+        this._currentOnHireCallback(this._selectedHeroIconViewModel);
+    }
+
     private togglePanel(toggleValue:boolean){
         this._isPanelVisible = toggleValue;
         this.togglePanelVisible$.next(this._isPanelVisible);
     }
+
+
 }
 
 export class PanelSettings{

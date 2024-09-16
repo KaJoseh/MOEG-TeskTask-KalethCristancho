@@ -2,7 +2,7 @@ import { _decorator, CCString, Component, Node, SpriteFrame, UITransform, Vec2, 
 import { BuildingPanelView } from './Views/BuildingPanelView';
 import { Subject, Subscription } from 'rxjs';
 import { HUDClicksManager } from './HUDClicksManager';
-import { TowerBuilding } from '../TowerBuilding';
+import { onAnyTowerBuildingClickedArgs, TowerBuilding } from '../TowerBuilding';
 import { BuildingData } from '../GameSettingsManager';
 const { ccclass, property } = _decorator;
 
@@ -52,8 +52,8 @@ export class HUDManager extends Component {
         HUDManager.Instance = this;
         this._hudClicksManager = this.node.getComponent(HUDClicksManager);
 
-        const onAnyTowerClickedSubscription = TowerBuilding.onAnyTowerBuildingClicked$.subscribe((buildingData: BuildingData) => {
-            this.openBuildingPanel(buildingData);
+        const onAnyTowerClickedSubscription = TowerBuilding.onAnyTowerBuildingClicked$.subscribe((args: onAnyTowerBuildingClickedArgs) => {
+            this.openBuildingPanel(args.buildingData, args.onHeroHiredCallback);
         });
         this._subscriptionsArray.push(onAnyTowerClickedSubscription);
 
@@ -102,9 +102,9 @@ export class HUDManager extends Component {
         return this.checkPositionIsOverNode(inputPosition, buildingPanelContainer);
     }
 
-    public openBuildingPanel(buildingData:BuildingData){
+    public openBuildingPanel(buildingData:BuildingData, onHireCallback:(hiredHero:any) => void){
         if(this.buildingPanelView){
-            this.buildingPanelView.getViewModel().openPanel(buildingData);
+            this.buildingPanelView.getViewModel().openPanel(buildingData, onHireCallback);
         }
     }
 
