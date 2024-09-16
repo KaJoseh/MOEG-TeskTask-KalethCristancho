@@ -6,11 +6,13 @@ const { ccclass, property } = _decorator;
 export class SummoningSlotView extends Component {
     
     @property(Sprite)
-    private heroIconSpriteRenderer:Sprite | null = null;
+    private heroIconSprite:Sprite | null = null;
     @property(Sprite)
-    private rankIconSpriteRenderer:Sprite | null = null;
+    private rankIconSprite:Sprite | null = null;
     @property(Sprite)
-    private elementIconSpriteRenderer:Sprite | null = null;
+    private elementIconSprite:Sprite | null = null;
+    @property(Sprite)
+    private progressBarSprite:Sprite | null = null;
 
     private _viewmodel:SummoningSlotViewModel | null = null;
     public getViewModel():SummoningSlotViewModel{
@@ -18,6 +20,10 @@ export class SummoningSlotView extends Component {
             this._viewmodel = new SummoningSlotViewModel();
         }
         return this._viewmodel;
+    }
+
+    protected onLoad(): void {
+
     }
 
 }

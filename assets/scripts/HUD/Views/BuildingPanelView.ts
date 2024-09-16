@@ -8,23 +8,29 @@ const { ccclass, property } = _decorator;
 @ccclass('BuildingPanelView')
 export class BuildingPanelView extends Component {
 
-    @property(Node)
+    @property({displayOrder: 1, type:Node})
     private panelContainer:Node | null = null;
     public getPanelContainer():Node | null{
         return this.panelContainer;
     }
-
-    @property(Label)
+    @property({displayOrder: 1, type:Label})
     private buildingNameLabel:Label | null = null;
-    @property(Label)
+    @property({displayOrder: 1, type:Label})
     private buildingDescLabel:Label | null = null;
-    @property(Node)
+
+    @property({group: {name: "Summon queue config", displayOrder: 2}, type:Node})
+    private summonSlotBase:Node | null = null;
+    @property({group: {name: "Summon queue config", displayOrder: 2}, type:Node})
+    private summonSlotListContainer:Node | null = null;
+    
+    @property({group: {name: "Hero icons config", displayOrder: 3}, type:Node})
     private heroIconBase:Node | null = null;
-    @property(Node)
+    @property({group: {name: "Hero icons config", displayOrder: 3}, type:Node})
     private heroesIconListContainer:Node | null = null;
-    @property(Button)
+
+    @property({group: {name: "Hire button config", displayOrder: 4}, type:Button})
     private hireButton:Button | null = null;
-    @property(Label)
+    @property({group: {name: "Hire button config", displayOrder: 4}, type:Label})
     private hireButtonPriceLabel:Label | null = null;
 
     private _viewmodel:BuildingPanelViewModel | null = null;
@@ -58,6 +64,9 @@ export class BuildingPanelView extends Component {
             }
             if(this.buildingDescLabel){
                 this.buildingDescLabel.string = panelSettings.description;
+            }
+            if(this.summonSlotBase){
+                this.handleSummoningSlots(panelSettings.hireSlots);
             }
             console.log(`panel hire slots: ${panelSettings.hireSlots}`);
         });
@@ -104,6 +113,25 @@ export class BuildingPanelView extends Component {
         else{
             this._showAnimation.stop();
             this._hideAnimation.start();
+        }
+    }
+
+    private handleSummoningSlots(slotsCount:number){
+        this.summonSlotListContainer?.children.forEach(child =>{
+            if(child !== this.summonSlotBase && child.isValid){
+                child.destroy();
+            }
+        });
+
+        for (let i = 0; i < slotsCount; i++) {
+            let newSummonSlot = instantiate(this.summonSlotBase);
+            if(!newSummonSlot){
+                return;
+            }
+            
+            newSummonSlot.parent = this.summonSlotListContainer;
+            newSummonSlot.setPosition(0,0,0);
+            newSummonSlot.active = true;
         }
     }
 

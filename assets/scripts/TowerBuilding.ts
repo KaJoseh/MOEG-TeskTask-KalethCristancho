@@ -1,6 +1,7 @@
 import { _decorator, CCString, Component, EventMouse, EventTouch, Input, Node } from 'cc';
 import { Subject } from 'rxjs';
 import { BuildingData, GameSettingsManager } from './GameSettingsManager';
+import { IHasProgress } from './IHasProgress';
 const { ccclass, property } = _decorator;
 
 enum State{
@@ -20,6 +21,8 @@ export class TowerBuilding extends Component {
     
     private _buildingData:BuildingData | undefined;
     private _towerState:State = State.Idle;
+    private _summoningHeroSlotArray: SummoningHeroSlot[] = [];
+    private _currentCooldownValue:number = 0;
 
     protected onLoad(): void {
         this.towerSpriteNode?.on(Input.EventType.TOUCH_START, this.onTowerSpriteTouchStart, this);
@@ -51,11 +54,22 @@ export class TowerBuilding extends Component {
         switch(this._towerState){
             case State.Idle:
                 break;
+
             case State.Summoning:
+                this._currentCooldownValue -= dt;
+                console.log(`currCooldown:${this._summoningHeroSlotArray.length} | Tower state: ${State[this._towerState]}`);
+                if(this._currentCooldownValue <= 0){
+                    //Summoned
+                    console.log("hero summoned!");
+                    this._summoningHeroSlotArray.shift();
+                    if(!this.hasPendingSummons()){
+                        this._towerState = State.Idle;
+                        break;
+                    }
+                    this.startNextSummon();
+                }
                 break;
         }
-        
-        console.log(`Tower state: ${State[this._towerState]}`);
     }
 
     private onTowerSpriteTouchStart(event: EventTouch){
@@ -68,8 +82,25 @@ export class TowerBuilding extends Component {
         }
     }
 
+    private hasPendingSummons(){
+        return this._summoningHeroSlotArray.length > 0;
+    }
+
     private onHeroHiredCallback(hiredHero:any){
-        this._towerState = State.Summoning;
+        const hiredHeroSlot = new SummoningHeroSlot("hero_1", 3);
+        const hiredHeroSlot2 = new SummoningHeroSlot("hero_2", 5);
+        this._summoningHeroSlotArray.push(hiredHeroSlot);
+        this._summoningHeroSlotArray.push(hiredHeroSlot2);
+        
+        if(this._towerState !== State.Summoning){
+            this._towerState = State.Summoning;
+            this.startNextSummon();
+        }
+    }
+
+    private startNextSummon(){
+        const currentSummonSlot = this._summoningHeroSlotArray[0];
+        this._currentCooldownValue = currentSummonSlot.heroSummonCooldown;
     }
 }
 
@@ -80,6 +111,16 @@ export class onAnyTowerBuildingClickedArgs{
     constructor(buildingData:BuildingData, onHeroHiredCallback:(hiredHero:any) => void){
         this.buildingData = buildingData;
         this.onHeroHiredCallback = onHeroHiredCallback;
+    }
+}
+
+export class SummoningHeroSlot{
+    summoningHeroId:string;
+    heroSummonCooldown:number;
+
+    constructor(summoningHeroId:string, heroSummonCooldown:number){
+        this.summoningHeroId = summoningHeroId;
+        this.heroSummonCooldown = heroSummonCooldown;
     }
 }
 

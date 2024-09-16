@@ -9,11 +9,11 @@ export class HeroIconView extends Component {
     @property(Node)
     private iconSelectedFrame:Node | null = null;
     @property(Sprite)
-    private heroIconSpriteRenderer:Sprite | null = null;
+    private heroIconSprite:Sprite | null = null;
     @property(Sprite)
-    private rankIconSpriteRenderer:Sprite | null = null;
+    private rankIconSprite:Sprite | null = null;
     @property(Sprite)
-    private elementIconSpriteRenderer:Sprite | null = null;
+    private elementIconSprite:Sprite | null = null;
 
     private _viewmodel:HeroIconViewModel | null = null;
     public getViewModel():HeroIconViewModel{
@@ -29,14 +29,14 @@ export class HeroIconView extends Component {
         const viewModel = this.getViewModel();
 
         const iconSettingsSubscription = viewModel.iconSettings$.subscribe((heroIconSettings:HeroIconSettings) =>{
-            if(this.heroIconSpriteRenderer){
-                this.heroIconSpriteRenderer.spriteFrame = heroIconSettings.heroSpriteFrame;
+            if(this.heroIconSprite){
+                this.heroIconSprite.spriteFrame = heroIconSettings.heroSpriteFrame;
             }
-            if(this.rankIconSpriteRenderer){
-                this.rankIconSpriteRenderer.spriteFrame = heroIconSettings.rankSpriteFrame;
+            if(this.rankIconSprite){
+                this.rankIconSprite.spriteFrame = heroIconSettings.rankSpriteFrame;
             }
-            if(this.elementIconSpriteRenderer){
-                this.elementIconSpriteRenderer.spriteFrame = heroIconSettings.elementSpriteFrame;
+            if(this.elementIconSprite){
+                this.elementIconSprite.spriteFrame = heroIconSettings.elementSpriteFrame;
             }
         });
         this._subscriptionsArray.push(iconSettingsSubscription);
