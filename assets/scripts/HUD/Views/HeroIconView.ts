@@ -1,6 +1,7 @@
-import { _decorator, CCString, Component, Node, Sprite, SpriteComponent, SpriteFrame, SpriteRenderer } from 'cc';
-import { HeroIconSettings, HeroIconViewModel } from '../ViewModels/HeroIconViewModel';
+import { _decorator, CCString, Component, Node, Sprite } from 'cc';
+import { OnIconSpritesSetArgs, HeroIconViewModel } from '../ViewModels/HeroIconViewModel';
 import { Subscription } from 'rxjs';
+import { HeroData } from '../../GameData';
 const { ccclass, property } = _decorator;
 
 @ccclass('HeroIconView')
@@ -28,18 +29,18 @@ export class HeroIconView extends Component {
     protected onLoad(): void {
         const viewModel = this.getViewModel();
 
-        const iconSettingsSubscription = viewModel.iconSettings$.subscribe((heroIconSettings:HeroIconSettings) =>{
+        const onIconSpritesSetArgsSubscription = viewModel.onIconSpritesSet$.subscribe((onIconSpritesSetArgs:OnIconSpritesSetArgs) =>{
             if(this.heroIconSprite){
-                this.heroIconSprite.spriteFrame = heroIconSettings.heroSpriteFrame;
+                this.heroIconSprite.spriteFrame = onIconSpritesSetArgs.heroSpriteFrame;
             }
             if(this.rankIconSprite){
-                this.rankIconSprite.spriteFrame = heroIconSettings.rankSpriteFrame;
+                this.rankIconSprite.spriteFrame = onIconSpritesSetArgs.rankSpriteFrame;
             }
             if(this.elementIconSprite){
-                this.elementIconSprite.spriteFrame = heroIconSettings.elementSpriteFrame;
+                this.elementIconSprite.spriteFrame = onIconSpritesSetArgs.elementSpriteFrame;
             }
         });
-        this._subscriptionsArray.push(iconSettingsSubscription);
+        this._subscriptionsArray.push(onIconSpritesSetArgsSubscription);
 
         const iconSelectedSubscription = viewModel.isSelected$.subscribe((selected:boolean) => {
             if(this.iconSelectedFrame){
@@ -53,10 +54,10 @@ export class HeroIconView extends Component {
         this._subscriptionsArray.forEach(sub => sub.unsubscribe());
     }
 
-    public Init(heroId:string, rankId:string, elementId: string, cost:number){
-        console.log(`Init icon for ${heroId}`)
+    public Init(iconHeroData:HeroData){
+        // console.log(`Init icon for ${iconHeroData.name}`);
         const viewModel = this.getViewModel();
-        viewModel.setUpIcon(heroId, rankId, elementId, cost);
+        viewModel.setUpIcon(iconHeroData);
     }
 }
 

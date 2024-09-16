@@ -2,12 +2,22 @@ import { _decorator, CCString, Component, EventMouse, EventTouch, Input, Node } 
 import { Subject } from 'rxjs';
 import { GameSettingsManager } from './GameSettingsManager';
 import { IHasProgress } from './IHasProgress';
-import { BuildingData } from './GameData';
+import { BuildingData, HeroData } from './GameData';
 const { ccclass, property } = _decorator;
 
 enum State{
     Idle,
     Summoning,
+}
+
+export class onAnyTowerBuildingClickedArgs{
+    buildingData:BuildingData;
+    onHeroHiredCallback:(hiredHero:HeroData) => void;
+
+    constructor(buildingData:BuildingData, onHeroHiredCallback:(hiredHero:any) => void){
+        this.buildingData = buildingData;
+        this.onHeroHiredCallback = onHeroHiredCallback;
+    }
 }
 
 @ccclass('TowerBuilding')
@@ -22,7 +32,7 @@ export class TowerBuilding extends Component {
     
     private _buildingData:BuildingData | undefined;
     private _towerState:State = State.Idle;
-    private _summoningHeroSlotArray: SummoningHeroSlot[] = [];
+    private _summoningHeroesArray: HeroData[] = [];
     private _currentCooldownValue:number = 0;
 
     protected onLoad(): void {
@@ -58,11 +68,12 @@ export class TowerBuilding extends Component {
 
             case State.Summoning:
                 this._currentCooldownValue -= dt;
-                console.log(`currCooldown:${this._summoningHeroSlotArray.length} | Tower state: ${State[this._towerState]}`);
+                //TODO: Update current progress to HUDManager
+                console.log(`currCooldown:${this._summoningHeroesArray.length} | Tower state: ${State[this._towerState]}`);
                 if(this._currentCooldownValue <= 0){
                     //Summoned
                     console.log("hero summoned!");
-                    this._summoningHeroSlotArray.shift();
+                    this._summoningHeroesArray.shift();
                     if(!this.hasPendingSummons()){
                         this._towerState = State.Idle;
                         break;
@@ -84,15 +95,13 @@ export class TowerBuilding extends Component {
     }
 
     private hasPendingSummons(){
-        return this._summoningHeroSlotArray.length > 0;
+        return this._summoningHeroesArray.length > 0;
     }
 
-    private onHeroHiredCallback(hiredHero:any){
-        const hiredHeroSlot = new SummoningHeroSlot("hero_1", 3);
-        const hiredHeroSlot2 = new SummoningHeroSlot("hero_2", 5);
-        this._summoningHeroSlotArray.push(hiredHeroSlot);
-        this._summoningHeroSlotArray.push(hiredHeroSlot2);
-        
+    private onHeroHiredCallback(hiredHero:HeroData){
+        console.log(`Tower received hired callback!!`);
+        console.log(`Summoning ${hiredHero.name} | Cooldown: ${hiredHero.summonCooldown}`);
+        this._summoningHeroesArray.push(hiredHero);
         if(this._towerState !== State.Summoning){
             this._towerState = State.Summoning;
             this.startNextSummon();
@@ -100,29 +109,7 @@ export class TowerBuilding extends Component {
     }
 
     private startNextSummon(){
-        const currentSummonSlot = this._summoningHeroSlotArray[0];
-        this._currentCooldownValue = currentSummonSlot.heroSummonCooldown;
+        const currentSummonSlot = this._summoningHeroesArray[0];
+        this._currentCooldownValue = currentSummonSlot.summonCooldown;
     }
 }
-
-export class onAnyTowerBuildingClickedArgs{
-    buildingData:BuildingData;
-    onHeroHiredCallback:(hiredHero:any) => void;
-
-    constructor(buildingData:BuildingData, onHeroHiredCallback:(hiredHero:any) => void){
-        this.buildingData = buildingData;
-        this.onHeroHiredCallback = onHeroHiredCallback;
-    }
-}
-
-export class SummoningHeroSlot{
-    summoningHeroId:string;
-    heroSummonCooldown:number;
-
-    constructor(summoningHeroId:string, heroSummonCooldown:number){
-        this.summoningHeroId = summoningHeroId;
-        this.heroSummonCooldown = heroSummonCooldown;
-    }
-}
-
-

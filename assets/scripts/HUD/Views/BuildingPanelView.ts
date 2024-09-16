@@ -1,8 +1,9 @@
 import { _decorator, Button, Component, instantiate, Label, Node, Prefab, Tween, tween, Vec2, Vec3, view } from 'cc';
-import { BuildingPanelViewModel, HeroIconParams, PanelSettings } from '../ViewModels/BuildingPanelViewModel';
+import { BuildingPanelViewModel, HeroIconListToCreateArgs, OnPanelSettingsSetArgs } from '../ViewModels/BuildingPanelViewModel';
 import { Subscription } from 'rxjs';
 import { HeroIconView } from './HeroIconView';
 import { HeroIconViewModel } from '../ViewModels/HeroIconViewModel';
+import { BuildingData, HeroData } from '../../GameData';
 const { ccclass, property } = _decorator;
 
 @ccclass('BuildingPanelView')
@@ -58,24 +59,24 @@ export class BuildingPanelView extends Component {
         });
         this._subscriptionsArray.push(togglePanelViewSubscription);
 
-        const panelSettingsSubscription = viewModel.panelSettings$.subscribe((panelSettings: PanelSettings) => {
+        const onPanelSettingsSetSubscription = viewModel.onPanelSettingsSet$.subscribe((onPanelSettingsSetArgs: OnPanelSettingsSetArgs) => {
             if(this.buildingNameLabel){
-                this.buildingNameLabel.string = panelSettings.name;
+                this.buildingNameLabel.string = onPanelSettingsSetArgs.buildingName;
             }
             if(this.buildingDescLabel){
-                this.buildingDescLabel.string = panelSettings.description;
+                this.buildingDescLabel.string = onPanelSettingsSetArgs.buildingDesc;
             }
             if(this.summonSlotBase){
-                this.handleSummoningSlots(panelSettings.hireSlots);
+                this.handleSummoningSlots(onPanelSettingsSetArgs.buildingHireSlots);
             }
-            console.log(`panel hire slots: ${panelSettings.hireSlots}`);
+            console.log(`panel hire slots: ${onPanelSettingsSetArgs.buildingHireSlots}`);
         });
-        this._subscriptionsArray.push(panelSettingsSubscription);
+        this._subscriptionsArray.push(onPanelSettingsSetSubscription);
 
-        const heroIconListSubscription = viewModel.heroIconListToCreate$.subscribe((heroIconList: HeroIconParams[]) =>{
-            this.handleHeroIcons(heroIconList);
+        const heroIconListToCreateSubscription = viewModel.heroIconListToCreate$.subscribe((heroIconListToCreateArgs: HeroIconListToCreateArgs) =>{
+            this.handleHeroIcons(heroIconListToCreateArgs.heroIconsData);
         });
-        this._subscriptionsArray.push(heroIconListSubscription);
+        this._subscriptionsArray.push(heroIconListToCreateSubscription);
 
         const enableHireButtonSubscription = viewModel.enableHireButton$.subscribe((buttonEnabled:boolean) => {
             if(this.hireButton){
@@ -103,6 +104,11 @@ export class BuildingPanelView extends Component {
 
     protected start(): void {
        this.setUpAnimations();
+    }
+
+    public openPanel(buildingData: BuildingData, onHireCallback:(hiredHero:HeroData) => void){
+        const viewModel = this.getViewModel();
+        viewModel.openPanel(buildingData, onHireCallback);
     }
 
     private togglePanelView(toggleValue:boolean){
@@ -135,7 +141,7 @@ export class BuildingPanelView extends Component {
         }
     }
 
-    private handleHeroIcons(heroIconParamsList: HeroIconParams[]){
+    private handleHeroIcons(iconsHeroData: HeroData[]){
         this.heroesIconListContainer?.children.forEach(child =>{
             if(child !== this.heroIconBase && child.isValid){
                 child.destroy();
@@ -143,7 +149,7 @@ export class BuildingPanelView extends Component {
         });
 
         let currentHeroIconViewModelArray: HeroIconViewModel[] = [];
-        heroIconParamsList.forEach(heroIconParam => {
+        iconsHeroData.forEach(heroData => {
             let newIcon = instantiate(this.heroIconBase);
             if(!newIcon){
                 return;
@@ -155,7 +161,7 @@ export class BuildingPanelView extends Component {
 
             const newIconView = newIcon.getComponent(HeroIconView);
             if(newIconView){
-                newIconView.Init(heroIconParam.heroId, heroIconParam.rankId, heroIconParam.elementId, heroIconParam.cost);
+                newIconView.Init(heroData);
                 currentHeroIconViewModelArray.push(newIconView.getViewModel());
                 
                 newIcon.on(Button.EventType.CLICK, (button: Button) => {

@@ -1,50 +1,9 @@
 import { BehaviorSubject, Subject } from "rxjs";
 import { HUDManager } from "../HUDManager";
 import { SpriteFrame } from "cc";
+import { HeroData } from "../../GameData";
 
-export class HeroIconViewModel{
-
-    private _isSelected: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
-    public get isSelected$(){
-        return this._isSelected;
-    }
-    private _iconSettings: Subject<HeroIconSettings> = new Subject<HeroIconSettings>();
-    public get iconSettings$(){
-        return this._iconSettings.asObservable();
-    }
-
-    private _heroCost:number = 0;
-    public get heroCost(){
-        return this._heroCost;
-    }
-
-    constructor(){
-
-    }
-
-    public setUpIcon(heroId:string, rankId:string, elementId: string, cost:number){
-        const hudManager = HUDManager.Instance;
-        if(!hudManager){
-            return;
-        }
-        
-        this._heroCost = cost;
-
-        const heroIcon = hudManager.getHeroIconSpriteFrame(heroId);
-        const rankIcon = hudManager.getRankSpriteFrame(rankId);
-        const elementIcon = hudManager.getElementSpriteFrame(elementId);
-        if(heroIcon && rankIcon && elementIcon){
-            let newIconSettings = new HeroIconSettings(heroIcon, rankIcon, elementIcon);
-            this._iconSettings.next(newIconSettings);
-        }
-    }
-
-    public toggleSelected(selected:boolean){
-        this.isSelected$.next(selected);
-    }
-}
-
-export class HeroIconSettings{
+export class OnIconSpritesSetArgs{
     heroSpriteFrame: SpriteFrame | null = null;
     rankSpriteFrame: SpriteFrame | null = null;
     elementSpriteFrame: SpriteFrame | null = null;
@@ -56,4 +15,43 @@ export class HeroIconSettings{
     }
 }
 
+export class HeroIconViewModel{
 
+    private _isSelected: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+    public get isSelected$(){
+        return this._isSelected;
+    }
+    private _onIconSpritesSet: Subject<OnIconSpritesSetArgs> = new Subject<OnIconSpritesSetArgs>();
+    public get onIconSpritesSet$(){
+        return this._onIconSpritesSet.asObservable();
+    }
+    private _iconHeroData:HeroData | null = null;
+    public get iconHeroData(){
+        return this._iconHeroData;
+    }
+
+    constructor(){
+
+    }
+
+    public setUpIcon(iconHeroData:HeroData){
+        const hudManager = HUDManager.Instance;
+        if(!hudManager){
+            return;
+        }
+        
+        this._iconHeroData = iconHeroData;
+
+        const heroIcon = hudManager.getHeroIconSpriteFrame(iconHeroData.id);
+        const rankIcon = hudManager.getRankSpriteFrame(iconHeroData.rank);
+        const elementIcon = hudManager.getElementSpriteFrame(iconHeroData.type);
+        if(heroIcon && rankIcon && elementIcon){
+            let newIconSettings = new OnIconSpritesSetArgs(heroIcon, rankIcon, elementIcon);
+            this._onIconSpritesSet.next(newIconSettings);
+        }
+    }
+
+    public toggleSelected(selected:boolean){
+        this.isSelected$.next(selected);
+    }
+}

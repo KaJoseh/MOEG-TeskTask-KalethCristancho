@@ -3,7 +3,7 @@ import { BuildingPanelView } from './Views/BuildingPanelView';
 import { Subject, Subscription } from 'rxjs';
 import { HUDClicksManager } from './HUDClicksManager';
 import { onAnyTowerBuildingClickedArgs, TowerBuilding } from '../TowerBuilding';
-import { BuildingData } from '../GameData';
+import { BuildingData, HeroData } from '../GameData';
 const { ccclass, property } = _decorator;
 
 @ccclass('HeroSpriteDictionary')
@@ -102,9 +102,9 @@ export class HUDManager extends Component {
         return this.checkPositionIsOverNode(inputPosition, buildingPanelContainer);
     }
 
-    public openBuildingPanel(buildingData:BuildingData, onHireCallback:(hiredHero:any) => void){
+    public openBuildingPanel(buildingData:BuildingData, onHireCallback:(hiredHero:HeroData) => void){
         if(this.buildingPanelView){
-            this.buildingPanelView.getViewModel().openPanel(buildingData, onHireCallback);
+            this.buildingPanelView.openPanel(buildingData, onHireCallback);
         }
     }
 
