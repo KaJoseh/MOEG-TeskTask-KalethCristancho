@@ -103,7 +103,7 @@ export class HUDManager extends Component {
         }
 
         //It seems that UITransform converts input position with an offset, so this offset is made to counter it 
-        const inputPositionOffset = new Vec2(30, -30);
+        const inputPositionOffset = new Vec2(30, -80);
         const inputPositionToVec3 = new Vec3(inputPosition.x + inputPositionOffset.x, inputPosition.y + inputPositionOffset.y, 0);
         const localNodePosition = nodeUITransform.convertToNodeSpaceAR(inputPositionToVec3);
 

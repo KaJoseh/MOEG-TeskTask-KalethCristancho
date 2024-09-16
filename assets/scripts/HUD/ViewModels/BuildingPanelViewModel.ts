@@ -4,19 +4,31 @@ import { TowerBuilding } from "../../TowerBuilding";
 import { HUDClicksManager } from "../HUDClicksManager";
 import { HUDManager } from "../HUDManager";
 import { BuildingData, HeroData } from "../../GameSettingsManager";
+import { HeroIconViewModel } from "./HeroIconViewModel";
 
 export class BuildingPanelViewModel{
 
     public togglePanelVisible$: Subject<boolean> = new Subject<boolean>();
+    private _heroIconListToCreate: Subject<HeroIconParams[]> = new Subject<HeroIconParams[]>();
+    public get heroIconListToCreate$(){
+        return this._heroIconListToCreate.asObservable();
+    }
     private _panelSettings: BehaviorSubject<PanelSettings> = new BehaviorSubject<PanelSettings>(new PanelSettings("", "", 0));
     public get panelSettings$(){
         return this._panelSettings.asObservable();
     }
-    private _heroIconList: Subject<HeroIconParams[]> = new Subject<HeroIconParams[]>();
-    public get heroIconList$(){
-        return this._heroIconList.asObservable();
+    private _enableHireButton: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+    public get enableHireButton$(){
+        return this._enableHireButton.asObservable();
+    }
+    private _hireButtonPriceValue:BehaviorSubject<number> = new BehaviorSubject<number>(0);
+    public get hireButtonPriceValue$(){
+        return this._hireButtonPriceValue.asObservable();
     }
 
+    private _selectedHeroIconViewModel:HeroIconViewModel | null = null;
+    private _currentHeroIconViewModelArray:HeroIconViewModel[] = [];
+    
     private _isPanelVisible:boolean = false;
 
     constructor(){
@@ -32,6 +44,10 @@ export class BuildingPanelViewModel{
     private onAnyTowerBuildingClickedCallback(buildingData: BuildingData){
         this.togglePanel(!this._isPanelVisible)
         if(this._isPanelVisible){
+            this._selectedHeroIconViewModel = null;
+            this._currentHeroIconViewModelArray = [];
+            this._enableHireButton.next(false);
+
             const newPanelSettings = new PanelSettings(
                 buildingData.name,
                 buildingData.description, 
@@ -41,9 +57,9 @@ export class BuildingPanelViewModel{
 
             let newHeroIconParams: HeroIconParams[] = [];
             buildingData.settings.summonableHeroes.forEach(hero =>{
-                newHeroIconParams.push(new HeroIconParams(hero.id, hero.rank, hero.type));
+                newHeroIconParams.push(new HeroIconParams(hero.id, hero.rank, hero.type, hero.cost));
             });
-            this._heroIconList.next(newHeroIconParams);
+            this._heroIconListToCreate.next(newHeroIconParams);
         }
     }
 
@@ -55,6 +71,21 @@ export class BuildingPanelViewModel{
             this.togglePanel(false);
             return;
         }
+    }
+
+    public selectHeroIcon(selectedIcon:HeroIconViewModel){
+        this._selectedHeroIconViewModel = selectedIcon;
+        this._currentHeroIconViewModelArray.forEach(heroIcon => {
+            const displayIconSelectedFrame = heroIcon === this._selectedHeroIconViewModel;
+            heroIcon.toggleSelected(displayIconSelectedFrame);
+        });
+
+        this._hireButtonPriceValue.next(selectedIcon.heroCost);
+        this._enableHireButton.next(true);
+    }
+
+    public setCurrentHeroIconViewModelArray(heroIconViewModelArray: HeroIconViewModel[]){
+        this._currentHeroIconViewModelArray = heroIconViewModelArray;
     }
 
     private togglePanel(toggleValue:boolean){
@@ -79,10 +110,12 @@ export class HeroIconParams{
     heroId:string;
     rankId:string;
     elementId:string;
+    cost:number;
 
-    constructor(heroId:string, rankId:string, elementId:string){
+    constructor(heroId:string, rankId:string, elementId:string, cost:number){
         this.heroId = heroId;
         this.rankId = rankId;
         this.elementId = elementId;
+        this.cost = cost;
     }
 }

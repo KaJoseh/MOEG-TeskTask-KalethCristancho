@@ -96,7 +96,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 540,
-      "y": 960,
+      "y": 960.0000000000002,
       "z": 0
     },
     "_lrot": {
@@ -383,7 +383,7 @@
     "_priority": 0,
     "_fov": 45,
     "_fovAxis": 0,
-    "_orthoHeight": 960,
+    "_orthoHeight": 960.0000000000001,
     "_near": 0,
     "_far": 1000,
     "_color": {
@@ -428,7 +428,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 1080,
-      "height": 1920
+      "height": 1920.0000000000002
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -521,7 +521,7 @@
     "_lpos": {
       "__type__": "cc.Vec3",
       "x": 540,
-      "y": 960,
+      "y": 960.0000000000001,
       "z": 0
     },
     "_lrot": {
@@ -606,7 +606,7 @@
     "_priority": 0,
     "_fov": 45,
     "_fovAxis": 0,
-    "_orthoHeight": 960,
+    "_orthoHeight": 960.0000000000001,
     "_near": 0,
     "_far": 1000,
     "_color": {
@@ -3225,6 +3225,12 @@
     "heroesIconListContainer": {
       "__id__": 65
     },
+    "hireButton": {
+      "__id__": 104
+    },
+    "hireButtonPriceLabel": {
+      "__id__": 99
+    },
     "_id": "3fc6Agoz9N05mHASc+pbDH"
   },
   {
@@ -3240,7 +3246,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 1080,
-      "height": 1920
+      "height": 1920.0000000000002
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",

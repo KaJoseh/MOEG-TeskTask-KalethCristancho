@@ -1,7 +1,8 @@
-import { _decorator, Component, instantiate, Label, Node, Prefab, Tween, tween, Vec2, Vec3 } from 'cc';
+import { _decorator, Button, Component, instantiate, Label, Node, Prefab, Tween, tween, Vec2, Vec3, view } from 'cc';
 import { BuildingPanelViewModel, HeroIconParams, PanelSettings } from '../ViewModels/BuildingPanelViewModel';
 import { Subscription } from 'rxjs';
 import { HeroIconView } from './HeroIconView';
+import { HeroIconViewModel } from '../ViewModels/HeroIconViewModel';
 const { ccclass, property } = _decorator;
 
 @ccclass('BuildingPanelView')
@@ -21,6 +22,10 @@ export class BuildingPanelView extends Component {
     private heroIconBase:Node | null = null;
     @property(Node)
     private heroesIconListContainer:Node | null = null;
+    @property(Button)
+    private hireButton:Button | null = null;
+    @property(Label)
+    private hireButtonPriceLabel:Label | null = null;
 
     private _viewmodel:BuildingPanelViewModel | null = null;
     public getViewModel():BuildingPanelViewModel{
@@ -55,9 +60,29 @@ export class BuildingPanelView extends Component {
         });
         this._subscriptionsArray.push(panelSettingsSubscription);
 
-        const heroIconListSubscription = viewModel.heroIconList$.subscribe((heroIconList: HeroIconParams[]) =>{
+        const heroIconListSubscription = viewModel.heroIconListToCreate$.subscribe((heroIconList: HeroIconParams[]) =>{
             this.handleHeroIcons(heroIconList);
         });
+        this._subscriptionsArray.push(heroIconListSubscription);
+
+        const enableHireButtonSubscription = viewModel.enableHireButton$.subscribe((buttonEnabled:boolean) => {
+            if(this.hireButton){
+                this.hireButton.interactable = buttonEnabled;
+            }
+            const priceContainer = this.hireButtonPriceLabel?.node.parent;
+            if(priceContainer){
+                priceContainer.active = buttonEnabled;
+            }
+
+        });
+        this._subscriptionsArray.push(enableHireButtonSubscription);
+
+        const priceLabelValueSubscription = viewModel.hireButtonPriceValue$.subscribe((value:number) => {
+            if(this.hireButtonPriceLabel){
+                this.hireButtonPriceLabel.string = value.toString();
+            }
+        });
+        this._subscriptionsArray.push(priceLabelValueSubscription);
     }
 
     protected onDestroy(): void {
@@ -80,25 +105,35 @@ export class BuildingPanelView extends Component {
     }
 
     private handleHeroIcons(heroIconParamsList: HeroIconParams[]){
-        //destroy every existing icon
-        // this.heroesIconListContainer?.destroyAllChildren();
         this.heroesIconListContainer?.children.forEach(child =>{
             if(child !== this.heroIconBase && child.isValid){
                 child.destroy();
             }
         });
 
-        //instantiate new icons
-        //get view component from icons and call its setup method with the hero Id
+        let currentHeroIconViewModelArray: HeroIconViewModel[] = [];
         heroIconParamsList.forEach(heroIconParam => {
             let newIcon = instantiate(this.heroIconBase);
-            if(newIcon){
-                newIcon.parent = this.heroesIconListContainer;
-                newIcon.setPosition(0,0,0);
-                newIcon.active = true;
-                newIcon.getComponent(HeroIconView)?.Init(heroIconParam.heroId, heroIconParam.rankId, heroIconParam.elementId);
+            if(!newIcon){
+                return;
+            }
+
+            newIcon.parent = this.heroesIconListContainer;
+            newIcon.setPosition(0,0,0);
+            newIcon.active = true;
+
+            const newIconView = newIcon.getComponent(HeroIconView);
+            if(newIconView){
+                newIconView.Init(heroIconParam.heroId, heroIconParam.rankId, heroIconParam.elementId, heroIconParam.cost);
+                currentHeroIconViewModelArray.push(newIconView.getViewModel());
+                
+                newIcon.on(Button.EventType.CLICK, (button: Button) => {
+                    this._viewmodel?.selectHeroIcon(newIconView.getViewModel());
+                });
             }
         });
+
+        this._viewmodel?.setCurrentHeroIconViewModelArray(currentHeroIconViewModelArray);
     }
 
     private setUpAnimations(){
