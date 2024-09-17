@@ -177,7 +177,7 @@ export class BuildingPanelView extends Component {
 
             const newIconView = newIcon.getComponent(HeroIconView);
             if(newIconView){
-                newIconView.Init(heroData);
+                newIconView.init(heroData);
                 heroIconViewModelArray.push(newIconView.getViewModel());
                 
                 newIcon.on(Button.EventType.CLICK, (button: Button) => {

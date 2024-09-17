@@ -56,7 +56,7 @@ export class SummoningSlotView extends Component {
 
     public Init(slotHeroData: HeroData){
         const viewModel = this.getViewModel();
-        this.heroIconView?.Init(slotHeroData);
+        this.heroIconView?.init(slotHeroData);
     }
 }
 

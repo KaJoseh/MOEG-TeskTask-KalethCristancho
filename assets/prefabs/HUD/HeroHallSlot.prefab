@@ -32,10 +32,13 @@
     "_components": [
       {
         "__id__": 86
+      },
+      {
+        "__id__": 88
       }
     ],
     "_prefab": {
-      "__id__": 88
+      "__id__": 90
     },
     "_lpos": {
       "__type__": "cc.Vec3",
@@ -810,7 +813,7 @@
     "_contentSize": {
       "__type__": "cc.Size",
       "width": 178.157,
-      "height": 60
+      "height": 62
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -851,7 +854,7 @@
     "_actualFontSize": 31,
     "_fontSize": 30,
     "_fontFamily": "Arial",
-    "_lineHeight": 26.6,
+    "_lineHeight": 32,
     "_overflow": 2,
     "_enableWrapText": true,
     "_font": null,
@@ -2166,6 +2169,45 @@
   {
     "__type__": "cc.CompPrefabInfo",
     "fileId": "0fITEDef1Hhrtp3J7uh34p"
+  },
+  {
+    "__type__": "928480q9PNBfKHLxZ5eXvez",
+    "_name": "",
+    "_objFlags": 0,
+    "__editorExtras__": {},
+    "node": {
+      "__id__": 1
+    },
+    "_enabled": true,
+    "__prefab": {
+      "__id__": 89
+    },
+    "heroIconView": {
+      "__id__": 81
+    },
+    "heroNameLabel": {
+      "__id__": 12
+    },
+    "heroDescLabel": {
+      "__id__": 18
+    },
+    "heroRankLabel": {
+      "__id__": 24
+    },
+    "heroTypeLabel": {
+      "__id__": 30
+    },
+    "heroCostLabel": {
+      "__id__": 36
+    },
+    "heroCooldownLabel": {
+      "__id__": 42
+    },
+    "_id": ""
+  },
+  {
+    "__type__": "cc.CompPrefabInfo",
+    "fileId": "abHzBqp0pFSbUOJ7YtX61Q"
   },
   {
     "__type__": "cc.PrefabInfo",

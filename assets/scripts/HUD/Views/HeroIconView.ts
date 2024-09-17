@@ -54,7 +54,7 @@ export class HeroIconView extends Component {
         this._subscriptionsArray.forEach(sub => sub.unsubscribe());
     }
 
-    public Init(iconHeroData:HeroData){
+    public init(iconHeroData:HeroData){
         // console.log(`Init icon for ${iconHeroData.name}`);
         const viewModel = this.getViewModel();
         viewModel.setUpIcon(iconHeroData);

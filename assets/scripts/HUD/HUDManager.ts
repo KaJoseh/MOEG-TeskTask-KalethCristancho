@@ -1,4 +1,4 @@
-import { _decorator, CCString, Component, Node, SpriteFrame, UITransform, Vec2, Vec3 } from 'cc';
+import { _decorator, Button, CCString, Component, Node, SpriteFrame, UITransform, Vec2, Vec3 } from 'cc';
 import { BuildingPanelView } from './Views/BuildingPanelView';
 import { Observable, Subject, Subscription } from 'rxjs';
 import { HUDClicksManager } from './HUDClicksManager';
@@ -8,6 +8,7 @@ import { EconomyManager, OnMoneyUpdatedArgs } from '../EconomyManager';
 import { CurrencyPanelView } from './Views/CurrencyPanelView';
 import { TroopsManagers } from '../TroopsManagers';
 import { SignpostView } from './Views/SignpostView';
+import { HallOfHeroesPanelView } from './Views/HallOfHeroesPanelView';
 const { ccclass, property } = _decorator;
 
 @ccclass('HeroSpriteDictionary')
@@ -45,6 +46,8 @@ export class HUDManager extends Component {
     private currencyPanelView:CurrencyPanelView | null = null;
     @property(SignpostView)
     private signpostView:SignpostView | null = null;
+    @property(HallOfHeroesPanelView)
+    private hallOfHeroesPanelView:HallOfHeroesPanelView | null = null;
 
     @property({ type: [HeroSpriteDictionary] })
     private heroIconSpriteDictList: HeroSpriteDictionary[] = [];
@@ -70,6 +73,7 @@ export class HUDManager extends Component {
         if(TroopsManagers.Instance){
             const onHeroesUpdated = TroopsManagers.Instance.onHeroesUpdated$.subscribe((summonedHeroes:HeroData[])=>{
                 this.handleSummonedHeroesUpdate(summonedHeroes);
+                this.updateHallOfHeroes(summonedHeroes);
             });
             this._subscriptionsArray.push(onHeroesUpdated);
         }
@@ -87,6 +91,16 @@ export class HUDManager extends Component {
                 }
             });
             this._subscriptionsArray.push(buildingPanelToggleSubscription);
+        }
+    }
+
+    protected start(): void {
+        if(this.signpostView){
+            this.signpostView.node.on(Button.EventType.CLICK, (button:Button) =>{
+                if(this.hallOfHeroesPanelView){
+                    this.hallOfHeroesPanelView.togglePanel(true);
+                }
+            });
         }
     }
 
@@ -139,6 +153,10 @@ export class HUDManager extends Component {
 
     private handleSummonedHeroesUpdate(summonedHeroes:HeroData[]){
         this.signpostView?.handleSummonedHeroesUpdate(summonedHeroes);
+    }
+
+    private updateHallOfHeroes(summonedHeroes:HeroData[]){
+        this.hallOfHeroesPanelView?.setupHallOfHeroes(summonedHeroes);
     }
 
     private handleMoneyUpdated(onMoneyUpdatedArgs:OnMoneyUpdatedArgs){
