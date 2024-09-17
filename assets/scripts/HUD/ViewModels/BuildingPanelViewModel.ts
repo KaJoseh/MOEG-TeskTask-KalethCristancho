@@ -72,6 +72,7 @@ export class BuildingPanelViewModel{
     private _selectedHeroIconViewModel:HeroIconViewModel | null = null;
     private _currentOnHireCallback:(hiredHero:HeroData) => void = (hiredHero:HeroData) => void {};
     
+    private _currentTowerSummonQueueCount = 0;
     private _canHire:boolean = true;    
 
     private _towerQueueSubscription:Subscription = new Subscription;
@@ -89,7 +90,7 @@ export class BuildingPanelViewModel{
             this._summoningSlotViewModelArray = [];
             this._heroIconViewModelArray = [];
             this._enableHireButton.next(false);
-            this._towerQueueSubscription.unsubscribe();
+            this._currentTowerSummonQueueCount = 0; 
 
             const newOnPanelSettingsSetArgs = new OnPanelSettingsSetArgs(
                 buildingData.name,
@@ -103,10 +104,12 @@ export class BuildingPanelViewModel{
                 heroIconsToCreate.push(hero);
             });
             
-            const towerQueueSubscription = towerQueue$.subscribe( (onTowerSummoningHeroArgs:OnTowerSummoningHeroArgs)=>{
+            if(this._towerQueueSubscription){
+                this._towerQueueSubscription.unsubscribe();
+            }
+            this._towerQueueSubscription = towerQueue$.subscribe( (onTowerSummoningHeroArgs:OnTowerSummoningHeroArgs)=>{
                 this.SetSummoningSlotsDataValues(onTowerSummoningHeroArgs);
             });
-            this._towerQueueSubscription = towerQueueSubscription;
             
             const newHeroIconListToCreateArgs = new HeroIconListToCreateArgs(heroIconsToCreate);
             this._heroIconListToCreate.next(newHeroIconListToCreateArgs);
@@ -131,8 +134,7 @@ export class BuildingPanelViewModel{
             const displayIconSelectedFrame = heroIcon === this._selectedHeroIconViewModel;
             heroIcon.toggleSelected(displayIconSelectedFrame);
         });
-
-        this.checkCanEnableHireButton();
+        const canEnable = this.checkCanEnableHireButton();
     }
 
     public setCurrentHeroIconViewModelArray(heroIconViewModelArray: HeroIconViewModel[]){
@@ -158,7 +160,8 @@ export class BuildingPanelViewModel{
     private SetSummoningSlotsDataValues(onTowerSummoningHeroArgs:OnTowerSummoningHeroArgs){
         const summoningSlotMax = this._summoningSlotViewModelArray.length;
         const towerSummoningQueue = onTowerSummoningHeroArgs.incomingHeroesDataQueue;
-        this._canHire = towerSummoningQueue.length < summoningSlotMax;
+        this._currentTowerSummonQueueCount = towerSummoningQueue.length;
+        this._canHire = this._currentTowerSummonQueueCount < summoningSlotMax;
         this.checkCanEnableHireButton();
         
         for (let i = 0; i < summoningSlotMax; i++) {
@@ -187,6 +190,7 @@ export class BuildingPanelViewModel{
 
         const economyManager = EconomyManager.Instance;
         if(economyManager){
+            this._canHire = this._currentTowerSummonQueueCount < this._summoningSlotViewModelArray.length;   
             const hireButtonEnabledValue = this._canHire && selectedIconHeroData.cost <= economyManager.currentMoney;
             this._enableHireButton.next(hireButtonEnabledValue);
 

@@ -1,4 +1,4 @@
-import { _decorator, Button, CCString, Component, Node, SpriteFrame, UITransform, Vec2, Vec3 } from 'cc';
+import { _decorator, Button, Component, Node, UITransform, Vec2, Vec3 } from 'cc';
 import { BuildingPanelView } from './Views/BuildingPanelView';
 import { Observable, Subject, Subscription } from 'rxjs';
 import { HUDClicksManager } from './HUDClicksManager';
@@ -29,6 +29,8 @@ export class HUDManager extends Component {
 
     private _hudClicksManager:HUDClicksManager | null = null;
     private _subscriptionsArray:Subscription[] = [];
+    private _currentSelecterTower: TowerBuilding | null = null;
+    private _onTowerClickedSubscription:Subscription = new Subscription;
 
 
     protected onLoad(): void {
@@ -49,14 +51,6 @@ export class HUDManager extends Component {
             });
             this._subscriptionsArray.push(onHeroesUpdated);
         }
-
-        const onAnyTowerClickedSubscription = TowerBuilding.onAnyTowerBuildingClicked$.subscribe((args: onAnyTowerBuildingClickedArgs) => {
-            if(this.isHallOfHeroesPanelOpen()){
-                return;
-            }
-            this.openBuildingPanel(args.buildingData, args.towerSummonQueueObservable$, args.onHeroHiredCallback);
-        });
-        this._subscriptionsArray.push(onAnyTowerClickedSubscription);
 
         const onHallOfHeroesToggledSubscription = this._onHallOfHeroesToggled$.subscribe((value:boolean) =>{
             if(this.signpostView){
@@ -94,6 +88,19 @@ export class HUDManager extends Component {
         this._subscriptionsArray.forEach(sub => sub.unsubscribe());
     }
 
+    public openBuildingPanelForClickedTower(clickedTower:TowerBuilding){
+        if (this._onTowerClickedSubscription) {
+            this._onTowerClickedSubscription.unsubscribe();
+        }
+        this._currentSelecterTower = clickedTower;
+        this._onTowerClickedSubscription = clickedTower.onTowerBuildingClicked$.subscribe((args: onAnyTowerBuildingClickedArgs) => {
+            if(this.isHallOfHeroesPanelOpen()){
+                return;
+            }
+            this.openBuildingPanel(args.buildingData, args.towerSummonQueueObservable$, args.onHeroHiredCallback);
+        });
+    }
+
     public isPositionOverBuildingPanelContainer(inputPosition:Vec2): boolean{
         if(!this.buildingPanelView){
             console.warn("Warning! buildingPanelView is null");
@@ -109,15 +116,21 @@ export class HUDManager extends Component {
         return this.checkPositionIsOverNode(inputPosition, buildingPanelContainer);
     }
 
-    public openBuildingPanel(buildingData:BuildingData, towerQueue$:Observable<OnTowerSummoningHeroArgs>, onHireCallback:(hiredHero:HeroData) => void){
+    private openBuildingPanel(buildingData:BuildingData, towerQueue$:Observable<OnTowerSummoningHeroArgs>, onHireCallback:(hiredHero:HeroData) => void){
         if(this.buildingPanelView){
             this.buildingPanelView.openPanel(buildingData, towerQueue$, onHireCallback);
         }
     }
 
-    public isBuildingPanelOpen():boolean{
+    public isBuildingPanelOpen(checkTowerDisplayed?:TowerBuilding):boolean{
         if(this.buildingPanelView){
-            return this.buildingPanelView.isPanelVisible();
+            if(checkTowerDisplayed){
+                return this.buildingPanelView.isPanelVisible() && checkTowerDisplayed === this._currentSelecterTower;
+            }
+            else{
+
+                return this.buildingPanelView.isPanelVisible();
+            }
         }
         return false;
     }
@@ -149,7 +162,6 @@ export class HUDManager extends Component {
     }
 
     private handleMoneyUpdated(onMoneyUpdatedArgs:OnMoneyUpdatedArgs){
-        //Do animation
         if(this.currencyPanelView){
             this.currencyPanelView.updateMoneyLabel(onMoneyUpdatedArgs.updatedValue, onMoneyUpdatedArgs.modifierValue);
         }

@@ -36,7 +36,7 @@ export class OnTowerSummoningHeroArgs{
 @ccclass('TowerBuilding')
 export class TowerBuilding extends Component {
     
-    public static onAnyTowerBuildingClicked$: Subject<onAnyTowerBuildingClickedArgs> = new Subject<onAnyTowerBuildingClickedArgs>();
+    public onTowerBuildingClicked$: Subject<onAnyTowerBuildingClickedArgs> = new Subject<onAnyTowerBuildingClickedArgs>();
     private _onTowerSummoningHero: Subject<OnTowerSummoningHeroArgs> = new Subject<OnTowerSummoningHeroArgs>();
     public get onTowerSummoningHero$(){
         return this._onTowerSummoningHero.asObservable();
@@ -44,6 +44,8 @@ export class TowerBuilding extends Component {
 
     @property(CCString)
     private buildingId: string = "";
+    @property({type: CCString})
+    private summonableHeroesId: string[] = [];
     @property(Node)
     private towerSpriteNode:Node | null = null;
     @property(Node)
@@ -69,12 +71,22 @@ export class TowerBuilding extends Component {
             return;
         }
 
-        //Add every hero as summonable
-        const heroData = GameDataManager.Instance?.getHeroesData();
-        if(heroData !== undefined){
-            heroData.forEach(hero => {
-                buildingData.settings.summonableHeroes.push(hero);
+        if(this.summonableHeroesId.length > 0){
+            this.summonableHeroesId.forEach(async heroId => {
+                const heroData = await GameDataManager.Instance?.getHeroDataById(heroId);
+                if(heroData !== undefined){
+                    buildingData.settings.summonableHeroes.push(heroData);
+                }
             });
+        }
+        else{
+            //Add every hero as summonable
+            const heroData = GameDataManager.Instance?.getHeroesData();
+            if(heroData !== undefined){
+                heroData.forEach(hero => {
+                    buildingData.settings.summonableHeroes.push(hero);
+                });
+            }
         }
 
         this._buildingData = buildingData;
@@ -82,7 +94,7 @@ export class TowerBuilding extends Component {
 
     protected update(dt: number): void {
         if(this.summoningIcon){
-            const displaySummoningIcon = this._towerState === State.Summoning && !HUDManager.Instance?.isBuildingPanelOpen();
+            const displaySummoningIcon = this._towerState === State.Summoning && !HUDManager.Instance?.isBuildingPanelOpen(this);
             this.summoningIcon.active = displaySummoningIcon;
         }
 
@@ -109,8 +121,10 @@ export class TowerBuilding extends Component {
     }
 
     private onTowerSpriteTouchStart(event: EventTouch){
+        HUDManager.Instance?.openBuildingPanelForClickedTower(this);
+
         if(this._buildingData !== undefined){
-            TowerBuilding.onAnyTowerBuildingClicked$.next(new onAnyTowerBuildingClickedArgs(
+            this.onTowerBuildingClicked$.next(new onAnyTowerBuildingClickedArgs(
                 this._buildingData,
                 this.onTowerSummoningHero$,
                 this.onHeroHiredCallback.bind(this)

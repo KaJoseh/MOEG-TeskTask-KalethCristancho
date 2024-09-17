@@ -60,14 +60,6 @@ export class CurrencyPanelView extends Component {
                     newModifierLabel.node.destroy();
                 })
                 .start();
-            
-            //Color Animation -> For some reason it kept setting the color to every color possible, so it's commented it until I figure out why
-            // tween(newModifierLabel)
-            //     .to(animationDuration, {color: color(newModifierLabel.color.r, newModifierLabel.color.g, newModifierLabel.color.b, 0)}, {easing:"sineOut"})
-            //     .call(() =>{
-            //         newModifierLabel.node.destroy();
-            //     })
-            //     .start();
         }
     }
 }

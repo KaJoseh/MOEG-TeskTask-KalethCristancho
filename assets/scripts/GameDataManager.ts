@@ -103,6 +103,16 @@ export class GameDataManager extends Component {
         return buildingData;
     }
 
+    public async getHeroDataById(heroId:string) : Promise<HeroData | undefined> {
+        await this._settingsLoaded;
+        const heroData = this._heroesJsonData?.heroes.filter(hero => hero.id === heroId)[0];
+        if(heroData === undefined){
+            console.warn("No heroData found for the following id: " + heroId);
+        }
+
+        return heroData;
+    }
+
     public getHeroesData(): HeroData[] | undefined {
         const heroData = this._heroesJsonData?.heroes;
         return heroData;

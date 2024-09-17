@@ -72,7 +72,6 @@ export class HallOfHeroesPanelView extends Component {
             }
         });
         summonedHeroesData.forEach(heroData => {
-            console.log("lol");
             const newHeroHallSlot = instantiate(this.heroHallSlotBase);
             if(!newHeroHallSlot){
                 return;

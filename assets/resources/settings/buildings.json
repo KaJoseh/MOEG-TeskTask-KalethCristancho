@@ -9,6 +9,46 @@
                 "hireSlots": 5,
                 "summonableHeroes" : []
             }
+        },
+        {
+            "id":"hire_tower_water",
+            "name": "Hiring Tower of Water Heroes",
+            "description": "A tower capable of hiring mighty WATER heroes to fight alongside us",
+            "cost": 100,
+            "settings": {
+                "hireSlots": 3,
+                "summonableHeroes" : []
+            }
+        },
+        {
+            "id":"hire_tower_fire",
+            "name": "Hiring Tower of Fire Heroes",
+            "description": "A tower capable of hiring mighty FIRE heroes to fight alongside us",
+            "cost": 100,
+            "settings": {
+                "hireSlots": 2,
+                "summonableHeroes" : []
+            }
+        },
+        {
+            "id":"hire_tower_earth",
+            "name": "Hiring Tower of Earth Heroes",
+            "description": "A tower capable of hiring mighty EARTH heroes to fight alongside us",
+            "cost": 100,
+            "settings": {
+                "hireSlots": 4,
+                "summonableHeroes" : []
+            }
+        },
+        {
+            "id":"hire_tower_wind",
+            "name": "Hiring Tower of Wind Heroes",
+            "description": "A tower capable of hiring mighty WIND heroes to fight alongside us",
+            "cost": 100,
+            "settings": {
+                "hireSlots": 2,
+                "summonableHeroes" : []
+            }
         }
     ]
 }
