@@ -4,6 +4,8 @@ import { Observable, Subject, Subscription } from 'rxjs';
 import { HUDClicksManager } from './HUDClicksManager';
 import { onAnyTowerBuildingClickedArgs, OnTowerSummoningHeroArgs, TowerBuilding } from '../TowerBuilding';
 import { BuildingData, HeroData } from '../GameData';
+import { EconomyManager, OnMoneyUpdatedArgs } from '../EconomyManager';
+import { CurrencyPanelView } from './Views/CurrencyPanelView';
 const { ccclass, property } = _decorator;
 
 @ccclass('HeroSpriteDictionary')
@@ -37,6 +39,8 @@ export class HUDManager extends Component {
 
     @property(BuildingPanelView)
     private buildingPanelView:BuildingPanelView | null = null;
+    @property(CurrencyPanelView)
+    private currencyPanelView:CurrencyPanelView | null = null;
 
     @property({ type: [HeroSpriteDictionary] })
     private heroIconSpriteDictList: HeroSpriteDictionary[] = [];
@@ -51,6 +55,13 @@ export class HUDManager extends Component {
     protected onLoad(): void {
         HUDManager.Instance = this;
         this._hudClicksManager = this.node.getComponent(HUDClicksManager);
+
+        if(EconomyManager.Instance){
+            const onMoneyUpdatedSubscription = EconomyManager.Instance.onMoneyUpdated$.subscribe((onMoneyUpdatedArgs: OnMoneyUpdatedArgs) => {
+                this.handleMoneyUpdated(onMoneyUpdatedArgs);
+            });
+            this._subscriptionsArray.push(onMoneyUpdatedSubscription);
+        }
 
         const onAnyTowerClickedSubscription = TowerBuilding.onAnyTowerBuildingClicked$.subscribe((args: onAnyTowerBuildingClickedArgs) => {
             this.openBuildingPanel(args.buildingData, args.towerSummonQueueObservable$, args.onHeroHiredCallback);
@@ -105,6 +116,13 @@ export class HUDManager extends Component {
     public openBuildingPanel(buildingData:BuildingData, towerQueue$:Observable<OnTowerSummoningHeroArgs>, onHireCallback:(hiredHero:HeroData) => void){
         if(this.buildingPanelView){
             this.buildingPanelView.openPanel(buildingData, towerQueue$, onHireCallback);
+        }
+    }
+
+    private handleMoneyUpdated(onMoneyUpdatedArgs:OnMoneyUpdatedArgs){
+        //Do animation
+        if(this.currencyPanelView){
+            this.currencyPanelView.updateMoneyLabel(onMoneyUpdatedArgs.updatedValue, onMoneyUpdatedArgs.modifierValue);
         }
     }
 

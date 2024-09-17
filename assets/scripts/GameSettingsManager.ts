@@ -59,6 +59,16 @@ export class GameSettingsManager extends Component {
         });
     }
 
+    public async getInitialMoney() : Promise<number | undefined> {
+        await this._settingsLoaded;
+        const initialStateData = this._initialStateJsonData;
+        if(initialStateData === null){
+            console.warn("No initialStateData found");
+        }
+
+        return initialStateData?.state.currency;
+    }
+
     public async getBuildingDataById(buildingId:string) : Promise<BuildingData | undefined> {
         await this._settingsLoaded;
         const buildingData = this._buildingsJsonData?.buildings.filter(building => building.id === buildingId)[0];

@@ -41,17 +41,6 @@ export class TowerBuilding extends Component {
         return this._onTowerSummoningHero.asObservable();
     }
 
-    /*
-        - Tower has list of summoningHeroes DONE
-        - Pass list of summoning heroes with current cooldown to HUDManager when summoning via event
-        - HUDManager subscribes to said event
-        - HudManager calls "HandleSummonSlotsData" from buildingPanelViewModel in said subscription
-        - Viewmodel gets list of every heroData being summoned with its remainingCooldown
-        - In viewmodel, do a for(i = hireslotsNumber) and check if i is not null in list of heroData being summoned
-        - if it's not null, enable elements container and assign the values of said hero data
-        - if it's null, disable elementsContainer
-    */
-
     @property(CCString)
     private buildingId: string = "";
     @property(Node)
@@ -136,7 +125,6 @@ export class TowerBuilding extends Component {
     }
 
     private onHeroHiredCallback(hiredHero:HeroData){
-        console.log(`Tower received hired callback!!`);
         console.log(`Summoning ${hiredHero.name} | Cooldown: ${hiredHero.summonCooldown}`);
         this._summoningHeroesArray.push(hiredHero);
         if(this._towerState !== State.Summoning){

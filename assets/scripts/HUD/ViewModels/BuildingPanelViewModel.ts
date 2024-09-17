@@ -6,6 +6,7 @@ import { HeroIconViewModel } from "./HeroIconViewModel";
 import { BuildingData, HeroData } from "../../GameData";
 import { SummoningSlotViewModel } from "./SummoningSlotViewModel";
 import { OnTowerSummoningHeroArgs } from "../../TowerBuilding";
+import { EconomyManager } from "../../EconomyManager";
 
 export class OnPanelSettingsSetArgs{
     buildingName:string;
@@ -131,6 +132,7 @@ export class BuildingPanelViewModel{
         console.log("Firing hire callback!");
         const selectedIconHeroData = this._selectedHeroIconViewModel?.iconHeroData;
         if(selectedIconHeroData){
+            EconomyManager.Instance?.substractAmountFromMoney(-selectedIconHeroData.cost);
             this._currentOnHireCallback(selectedIconHeroData);
         }
     }

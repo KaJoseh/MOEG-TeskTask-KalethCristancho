@@ -72,7 +72,7 @@ export class BuildingPanelView extends Component {
             if(this.summonSlotBase){
                 this.handleSummoningSlots(onPanelSettingsSetArgs.buildingHireSlots);
             }
-            console.log(`panel hire slots: ${onPanelSettingsSetArgs.buildingHireSlots}`);
+            // console.log(`panel hire slots: ${onPanelSettingsSetArgs.buildingHireSlots}`);
         });
         this._subscriptionsArray.push(onPanelSettingsSetSubscription);
 
