@@ -1,4 +1,4 @@
-import { Vec2 } from "cc";
+import { Color, Vec2 } from "cc";
 import { BehaviorSubject, Observable, Subject, Subscription } from "rxjs";
 import { HUDClicksManager } from "../HUDClicksManager";
 import { HUDManager } from "../HUDManager";
@@ -28,12 +28,26 @@ export class HeroIconListToCreateArgs{
     }
 }
 
+export class HireButtonPriceValueUpdateArgs{
+    newValue:number;
+    color:Color;
+
+    constructor(newValue:number, color:Color){
+        this.newValue = newValue;
+        this.color = color;
+    }
+}
+
 export class BuildingPanelViewModel{
 
     public togglePanelVisible$: Subject<boolean> = new Subject<boolean>();
     private _heroIconListToCreate: Subject<HeroIconListToCreateArgs> = new Subject<HeroIconListToCreateArgs>();
     public get heroIconListToCreate$(){
         return this._heroIconListToCreate.asObservable();
+    }
+    private _hireButtonPriceValueUpdate:Subject<HireButtonPriceValueUpdateArgs> = new Subject<HireButtonPriceValueUpdateArgs>();
+    public get hireButtonPriceValueUpdate$(){
+        return this._hireButtonPriceValueUpdate.asObservable();
     }
     private _onPanelSettingsSet: BehaviorSubject<OnPanelSettingsSetArgs> = new BehaviorSubject<OnPanelSettingsSetArgs>(new OnPanelSettingsSetArgs("", "", 0));
     public get onPanelSettingsSet$(){
@@ -43,9 +57,10 @@ export class BuildingPanelViewModel{
     public get enableHireButton$(){
         return this._enableHireButton.asObservable();
     }
-    private _hireButtonPriceValue:BehaviorSubject<number> = new BehaviorSubject<number>(0);
-    public get hireButtonPriceValue$(){
-        return this._hireButtonPriceValue.asObservable();
+
+    private _isAnyHeroIconSelected = false;
+    public get isAnyHeroIconSelected(){
+        return this._isAnyHeroIconSelected;
     }
 
     private _summoningSlotViewModelArray:SummoningSlotViewModel [] = [];
@@ -54,6 +69,7 @@ export class BuildingPanelViewModel{
     private _currentOnHireCallback:(hiredHero:HeroData) => void = (hiredHero:HeroData) => void {};
     
     private _isPanelVisible:boolean = false;
+    private _canHire:boolean = true;    
 
     private _towerQueueSubscription:Subscription = new Subscription;
 
@@ -106,17 +122,14 @@ export class BuildingPanelViewModel{
     }
 
     public selectHeroIcon(selectedIcon:HeroIconViewModel){
+        this._isAnyHeroIconSelected = selectedIcon !== null;
         this._selectedHeroIconViewModel = selectedIcon;
         this._heroIconViewModelArray.forEach(heroIcon => {
             const displayIconSelectedFrame = heroIcon === this._selectedHeroIconViewModel;
             heroIcon.toggleSelected(displayIconSelectedFrame);
         });
 
-        const selectedIconHeroData = this._selectedHeroIconViewModel.iconHeroData;
-        if(selectedIconHeroData){
-            this._hireButtonPriceValue.next(selectedIconHeroData.cost);
-            this._enableHireButton.next(true);
-        }
+        this.checkCanEnableHireButton();
     }
 
     public setCurrentHeroIconViewModelArray(heroIconViewModelArray: HeroIconViewModel[]){
@@ -124,22 +137,26 @@ export class BuildingPanelViewModel{
     }
 
     public setCurrentSummoningSlotViewModelArray(summoningSlotViewModelArray: SummoningSlotViewModel[]){
-        console.log(`set summon slots length: ${summoningSlotViewModelArray.length}`);
         this._summoningSlotViewModelArray = summoningSlotViewModelArray;
     }
 
     public hireSelectedHero(){
-        console.log("Firing hire callback!");
         const selectedIconHeroData = this._selectedHeroIconViewModel?.iconHeroData;
-        if(selectedIconHeroData){
-            EconomyManager.Instance?.substractAmountFromMoney(-selectedIconHeroData.cost);
-            this._currentOnHireCallback(selectedIconHeroData);
+        if(!selectedIconHeroData || !this.checkCanEnableHireButton()){
+            return;
         }
+        
+        console.log("Firing hire callback!");
+        EconomyManager.Instance?.substractAmountFromMoney(-selectedIconHeroData.cost);
+        this._currentOnHireCallback(selectedIconHeroData);
+        this.checkCanEnableHireButton();
     }
 
     private SetSummoningSlotsDataValues(onTowerSummoningHeroArgs:OnTowerSummoningHeroArgs){
         const summoningSlotMax = this._summoningSlotViewModelArray.length;
         const towerSummoningQueue = onTowerSummoningHeroArgs.incomingHeroesDataQueue;
+        this._canHire = towerSummoningQueue.length < summoningSlotMax;
+        this.checkCanEnableHireButton();
         
         for (let i = 0; i < summoningSlotMax; i++) {
             let targetSummonSlotViewModel = this._summoningSlotViewModelArray[i];           
@@ -157,6 +174,25 @@ export class BuildingPanelViewModel{
                 continue;
             }
         }
+    }
+
+    private checkCanEnableHireButton(): boolean{
+        const selectedIconHeroData = this._selectedHeroIconViewModel?.iconHeroData;
+        if(!selectedIconHeroData){
+            return false;
+        }
+
+        const economyManager = EconomyManager.Instance;
+        if(economyManager){
+            const hireButtonEnabledValue = this._canHire && selectedIconHeroData.cost <= economyManager.currentMoney;
+            this._enableHireButton.next(hireButtonEnabledValue);
+
+            const hireButtonPriceLabelColor = hireButtonEnabledValue ? Color.GREEN : Color.RED;
+            const newHireButtonPriceUpdateArgs = new HireButtonPriceValueUpdateArgs(selectedIconHeroData.cost, hireButtonPriceLabelColor);
+            this._hireButtonPriceValueUpdate.next(newHireButtonPriceUpdateArgs);
+            return hireButtonEnabledValue;
+        }
+        return false;
     }
 
     private togglePanel(toggleValue:boolean){

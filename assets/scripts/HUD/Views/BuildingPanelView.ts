@@ -1,5 +1,5 @@
 import { _decorator, Button, Component, instantiate, Label, Node, Prefab, Tween, tween, Vec2, Vec3, view } from 'cc';
-import { BuildingPanelViewModel, HeroIconListToCreateArgs, OnPanelSettingsSetArgs } from '../ViewModels/BuildingPanelViewModel';
+import { BuildingPanelViewModel, HeroIconListToCreateArgs, HireButtonPriceValueUpdateArgs, OnPanelSettingsSetArgs } from '../ViewModels/BuildingPanelViewModel';
 import { Observable, Subscription } from 'rxjs';
 import { HeroIconView } from './HeroIconView';
 import { HeroIconViewModel } from '../ViewModels/HeroIconViewModel';
@@ -85,17 +85,18 @@ export class BuildingPanelView extends Component {
             if(this.hireButton){
                 this.hireButton.interactable = buttonEnabled;
             }
-            const priceContainer = this.hireButtonPriceLabel?.node.parent;
-            if(priceContainer){
-                priceContainer.active = buttonEnabled;
-            }
-
         });
         this._subscriptionsArray.push(enableHireButtonSubscription);
 
-        const priceLabelValueSubscription = viewModel.hireButtonPriceValue$.subscribe((value:number) => {
+        const priceLabelValueSubscription = viewModel.hireButtonPriceValueUpdate$.subscribe((priceUpdateArgs:HireButtonPriceValueUpdateArgs) => {
             if(this.hireButtonPriceLabel){
-                this.hireButtonPriceLabel.string = value.toString();
+                this.hireButtonPriceLabel.string = priceUpdateArgs.newValue.toString();
+                this.hireButtonPriceLabel.color = priceUpdateArgs.color;
+
+                const priceContainer = this.hireButtonPriceLabel?.node.parent;
+                if(priceContainer){
+                    priceContainer.active = true;
+                }
             }
         });
         this._subscriptionsArray.push(priceLabelValueSubscription);
@@ -133,7 +134,8 @@ export class BuildingPanelView extends Component {
         });
 
         let summoningSlotViewModelArray: SummoningSlotViewModel [] = [];
-        for (let i = 0; i < slotsCount; i++) {
+        const slotsToCreateAmount = slotsCount > 5 ? 5 : slotsCount;
+        for (let i = 0; i < slotsToCreateAmount; i++) {
             let newSummonSlot = instantiate(this.summonSlotBase);
             if(!newSummonSlot){
                 return;
