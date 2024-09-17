@@ -74,31 +74,16 @@ export class HUDManager extends Component {
             });
             this._subscriptionsArray.push(buildingPanelToggleSubscription);
         }
-    }
 
-    protected start(): void {
         if(this.signpostView){
             this.signpostView.node.on(Button.EventType.CLICK, (button:Button) =>{
-                this.toggleHallOfHeroesVisibility(true);
+                this.toggleHallOfHeroesOpen(true);
             });
         }
     }
 
     protected onDestroy(): void {
         this._subscriptionsArray.forEach(sub => sub.unsubscribe());
-    }
-
-    public openBuildingPanelForClickedTower(clickedTower:TowerBuilding){
-        if (this._onTowerClickedSubscription) {
-            this._onTowerClickedSubscription.unsubscribe();
-        }
-        this._currentSelecterTower = clickedTower;
-        this._onTowerClickedSubscription = clickedTower.onTowerBuildingClicked$.subscribe((args: onAnyTowerBuildingClickedArgs) => {
-            if(this.isHallOfHeroesPanelOpen()){
-                return;
-            }
-            this.openBuildingPanel(args.buildingData, args.towerSummonQueueObservable$, args.onHeroHiredCallback);
-        });
     }
 
     public isPositionOverBuildingPanelContainer(inputPosition:Vec2): boolean{
@@ -114,6 +99,19 @@ export class HUDManager extends Component {
         }
 
         return this.checkPositionIsOverNode(inputPosition, buildingPanelContainer);
+    }
+
+    public openBuildingPanelForClickedTower(clickedTower:TowerBuilding){
+        if (this._onTowerClickedSubscription) {
+            this._onTowerClickedSubscription.unsubscribe();
+        }
+        this._currentSelecterTower = clickedTower;
+        this._onTowerClickedSubscription = clickedTower.onTowerBuildingClicked$.subscribe((args: onAnyTowerBuildingClickedArgs) => {
+            if(this.isHallOfHeroesPanelOpen()){
+                return;
+            }
+            this.openBuildingPanel(args.buildingData, args.towerSummonQueueObservable$, args.onHeroHiredCallback);
+        });
     }
 
     private openBuildingPanel(buildingData:BuildingData, towerQueue$:Observable<OnTowerSummoningHeroArgs>, onHireCallback:(hiredHero:HeroData) => void){
@@ -135,16 +133,16 @@ export class HUDManager extends Component {
         return false;
     }
 
+    public toggleHallOfHeroesOpen(value:boolean){
+        this.hallOfHeroesPanelView?.togglePanel(value);
+        this._onHallOfHeroesToggled$.next(value);
+    }
+
     public isHallOfHeroesPanelOpen():boolean{
         if(this.hallOfHeroesPanelView){
             return this.hallOfHeroesPanelView.isPanelVisible();
         }
         return false;
-    }
-
-    public toggleHallOfHeroesVisibility(value:boolean){
-        this.hallOfHeroesPanelView?.togglePanel(value);
-        this._onHallOfHeroesToggled$.next(value);
     }
 
     private closeOpenedPanels(){

@@ -32,7 +32,7 @@ export class HallOfHeroesPanelViewModel{
     }
 
     public onClosePanelButtonClicked(){
-        HUDManager.Instance?.toggleHallOfHeroesVisibility(false);
+        HUDManager.Instance?.toggleHallOfHeroesOpen(false);
     }
 }
 

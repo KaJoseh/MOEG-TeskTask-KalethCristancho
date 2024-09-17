@@ -55,7 +55,6 @@ export class HeroIconView extends Component {
     }
 
     public init(iconHeroData:HeroData){
-        // console.log(`Init icon for ${iconHeroData.name}`);
         const viewModel = this.getViewModel();
         viewModel.setUpIcon(iconHeroData);
     }

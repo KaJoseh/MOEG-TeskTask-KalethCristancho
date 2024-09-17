@@ -72,7 +72,6 @@ export class BuildingPanelView extends Component {
             if(this.summonSlotBase){
                 this.handleSummoningSlots(onPanelSettingsSetArgs.buildingHireSlots);
             }
-            // console.log(`panel hire slots: ${onPanelSettingsSetArgs.buildingHireSlots}`);
         });
         this._subscriptionsArray.push(onPanelSettingsSetSubscription);
 
@@ -110,9 +109,14 @@ export class BuildingPanelView extends Component {
        this.setUpAnimations();
     }
 
+    /**
+     * @param buildingData Interface from where the panels gets the data
+     * @param towerQueue$ Observable that notifies the panel whenever the selected tower is summoning something
+     * @param onHireCallback Callback that notifies the selected tower that a hero was hired
+     */
     public openPanel(buildingData: BuildingData, towerQueue$:Observable<OnTowerSummoningHeroArgs>, onHireCallback:(hiredHero:HeroData) => void){
         const viewModel = this.getViewModel();
-        viewModel.openPanel(buildingData, towerQueue$, onHireCallback);
+        viewModel.setupPanel(buildingData, towerQueue$, onHireCallback);
     }
 
     public closePanel(){

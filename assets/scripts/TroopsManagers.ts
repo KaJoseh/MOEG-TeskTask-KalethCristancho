@@ -20,7 +20,6 @@ export class TroopsManagers extends Component {
     }
 
     public addHeroToSummonedArray(newHero:HeroData){
-        console.log(`added: ${newHero.name}`);
         this._summonedHeroes.push(newHero);
         this.onHeroesUpdated$.next(this._summonedHeroes);
     }

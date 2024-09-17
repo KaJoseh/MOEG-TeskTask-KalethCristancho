@@ -83,7 +83,7 @@ export class BuildingPanelViewModel{
         });
     }
 
-    public openPanel(buildingData: BuildingData, towerQueue$:Observable<OnTowerSummoningHeroArgs>, onHireCallback:(hiredHero:HeroData) => void){
+    public setupPanel(buildingData: BuildingData, towerQueue$:Observable<OnTowerSummoningHeroArgs>, onHireCallback:(hiredHero:HeroData) => void){
         this.togglePanel(!this._isPanelVisible)
         if(this._isPanelVisible){
             this._selectedHeroIconViewModel = null;
@@ -134,7 +134,7 @@ export class BuildingPanelViewModel{
             const displayIconSelectedFrame = heroIcon === this._selectedHeroIconViewModel;
             heroIcon.toggleSelected(displayIconSelectedFrame);
         });
-        const canEnable = this.checkCanEnableHireButton();
+        this.checkCanEnableHireButton();
     }
 
     public setCurrentHeroIconViewModelArray(heroIconViewModelArray: HeroIconViewModel[]){
@@ -151,12 +151,12 @@ export class BuildingPanelViewModel{
             return;
         }
         
-        console.log("Firing hire callback!");
         EconomyManager.Instance?.substractAmountFromMoney(-selectedIconHeroData.cost);
         this._currentOnHireCallback(selectedIconHeroData);
         this.checkCanEnableHireButton();
     }
 
+    //Called while target tower is summoning heroes
     private SetSummoningSlotsDataValues(onTowerSummoningHeroArgs:OnTowerSummoningHeroArgs){
         const summoningSlotMax = this._summoningSlotViewModelArray.length;
         const towerSummoningQueue = onTowerSummoningHeroArgs.incomingHeroesDataQueue;

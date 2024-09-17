@@ -113,7 +113,6 @@ export class TowerBuilding extends Component {
 
                 if(this._currentCooldownValue <= 0){
                     //Summoned
-                    console.log("hero summoned!");
                     this.handleHeroSummoned();
                 }
                 break;
@@ -129,7 +128,6 @@ export class TowerBuilding extends Component {
                 this.onTowerSummoningHero$,
                 this.onHeroHiredCallback.bind(this)
             ));
-            console.log("TOWER CLICKED!");
         }
     }
 
