@@ -202,6 +202,4 @@ export class BuildingPanelViewModel{
         this._isPanelVisible = toggleValue;
         this.togglePanelVisible$.next(this._isPanelVisible);
     }
-
-
 }

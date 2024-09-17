@@ -127,6 +127,11 @@ export class BuildingPanelView extends Component {
         if(toggleValue){
             this._hideAnimation.stop();
             this._showAnimation.start();
+
+            const priceContainer = this.hireButtonPriceLabel?.node.parent;
+            if(priceContainer){
+                priceContainer.active = false;
+            }
         }
         else{
             this._showAnimation.stop();

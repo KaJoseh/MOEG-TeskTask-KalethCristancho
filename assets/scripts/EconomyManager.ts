@@ -1,6 +1,6 @@
 import { _decorator, Component, Node } from 'cc';
-import { GameSettingsManager } from './GameSettingsManager';
 import { Subject } from 'rxjs';
+import { GameDataManager } from './GameDataManager';
 const { ccclass, property } = _decorator;
 
 export class OnMoneyUpdatedArgs{
@@ -29,7 +29,7 @@ export class EconomyManager extends Component {
     }
 
     protected async start(): Promise<void> {
-        const initialMoney = await GameSettingsManager.Instance?.getInitialMoney();
+        const initialMoney = await GameDataManager.Instance?.getInitialMoney();
         if(initialMoney){
             this._currentMoney = initialMoney;
             const onMoneyUpdatedArgs = new OnMoneyUpdatedArgs(this._currentMoney, 0);

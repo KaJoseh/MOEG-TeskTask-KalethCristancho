@@ -1,10 +1,9 @@
 import { _decorator, CCString, Component, EventMouse, EventTouch, Input, Node } from 'cc';
 import { Observable, Subject } from 'rxjs';
-import { GameSettingsManager } from './GameSettingsManager';
-import { IHasProgress } from './IHasProgress';
 import { BuildingData, HeroData } from './GameData';
 import { HUDManager } from './HUD/HUDManager';
 import { TroopsManagers } from './TroopsManagers';
+import { GameDataManager } from './GameDataManager';
 const { ccclass, property } = _decorator;
 
 enum State{
@@ -65,13 +64,13 @@ export class TowerBuilding extends Component {
     }
 
     protected async start(): Promise<void> {
-        const buildingData = await GameSettingsManager.Instance?.getBuildingDataById(this.buildingId);
+        const buildingData = await GameDataManager.Instance?.getBuildingDataById(this.buildingId);
         if(buildingData === undefined){
             return;
         }
 
         //Add every hero as summonable
-        const heroData = GameSettingsManager.Instance?.getHeroesData();
+        const heroData = GameDataManager.Instance?.getHeroesData();
         if(heroData !== undefined){
             heroData.forEach(hero => {
                 buildingData.settings.summonableHeroes.push(hero);

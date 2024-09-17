@@ -1,7 +1,7 @@
 import { BehaviorSubject, Subject } from "rxjs";
-import { HUDManager } from "../HUDManager";
 import { SpriteFrame } from "cc";
 import { HeroData } from "../../GameData";
+import { GameDataManager } from "../../GameDataManager";
 
 export class OnIconSpritesSetArgs{
     heroSpriteFrame: SpriteFrame | null = null;
@@ -35,16 +35,16 @@ export class HeroIconViewModel{
     }
 
     public setUpIcon(iconHeroData:HeroData){
-        const hudManager = HUDManager.Instance;
-        if(!hudManager){
+        const gameDataManager = GameDataManager.Instance;
+        if(!gameDataManager){
             return;
         }
         
         this._iconHeroData = iconHeroData;
 
-        const heroIcon = hudManager.getHeroIconSpriteFrame(iconHeroData.id);
-        const rankIcon = hudManager.getRankSpriteFrame(iconHeroData.rank);
-        const elementIcon = hudManager.getElementSpriteFrame(iconHeroData.type);
+        const heroIcon = gameDataManager.getHeroIconSpriteFrame(iconHeroData.id);
+        const rankIcon = gameDataManager.getRankSpriteFrame(iconHeroData.rank);
+        const elementIcon = gameDataManager.getElementSpriteFrame(iconHeroData.type);
         if(heroIcon && rankIcon && elementIcon){
             let newIconSettings = new OnIconSpritesSetArgs(heroIcon, rankIcon, elementIcon);
             this._onIconSpritesSet.next(newIconSettings);

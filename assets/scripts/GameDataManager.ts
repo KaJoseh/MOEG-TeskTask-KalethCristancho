@@ -1,12 +1,42 @@
-import { _decorator, Component } from 'cc';
-import { JsonLoader } from './JsonLoader';
+import { _decorator, CCString, Component, Node, SpriteFrame } from 'cc';
 import { BuildingData, BuildingsJsonData, HeroData, HeroesJsonData, InitialStateJsonData } from './GameData';
+import { JsonLoader } from './JsonLoader';
 const { ccclass, property } = _decorator;
 
-@ccclass('GameSettingsManager')
-export class GameSettingsManager extends Component {
+@ccclass('HeroSpriteDictionary')
+class HeroSpriteDictionary{
+    @property(CCString)
+    heroId:string = "";
+    @property(SpriteFrame)
+    heroSpriteFrame:SpriteFrame | null = null;
+}
 
-    public static Instance:GameSettingsManager | null = null;
+@ccclass('RankSpriteDictionary')
+class RankSpriteDictionary{
+    @property(CCString)
+    rankId:string = "";
+    @property(SpriteFrame)
+    rankSpriteFrame:SpriteFrame | null = null;
+}
+
+@ccclass('ElementSpriteDictionary')
+class ElementSpriteDictionary{
+    @property(CCString)
+    elementId:string = "";
+    @property(SpriteFrame)
+    elementSpriteFrame:SpriteFrame | null = null;
+}
+
+@ccclass('GameDataManager')
+export class GameDataManager extends Component {
+    public static Instance:GameDataManager | null = null;
+
+    @property({ type: [HeroSpriteDictionary] })
+    private heroIconSpriteDictList: HeroSpriteDictionary[] = [];
+    @property({ type: [RankSpriteDictionary] })
+    private rankSpriteDictList: RankSpriteDictionary[] = [];
+    @property({ type: [ElementSpriteDictionary] })
+    private elementSpriteDictList: ElementSpriteDictionary[] = [];
 
     private _initialStateJsonData:InitialStateJsonData | null = null;
     private _buildingsJsonData:BuildingsJsonData | null = null;
@@ -15,15 +45,9 @@ export class GameSettingsManager extends Component {
     private _settingsLoaded: Promise<void> | null = null;
 
     protected onLoad(): void {
-        GameSettingsManager.Instance = this;
+        GameDataManager.Instance = this;
 
         this.loadSettingsFromJsons();
-    }
-
-    protected start(): void {
-        // console.log(`SettingsManager | currency:${this._initialStateJsonData?.state.currency}`);
-        // console.log(`SettingsManager | buildingsCount:${this._buildingsJsonData?.buildings[0].name}`);
-        // console.log(`SettingsManager | heroesCount:${this._heroesJsonData?.heroes[0].name}`);
     }
 
     private loadSettingsFromJsons(){
@@ -34,7 +58,7 @@ export class GameSettingsManager extends Component {
             const onLoadComplete = () => {
                 loadCount++;
                 if (loadCount === amountOfFilesToLoadFrom) {
-                    console.log("GameSettingsManager | Promise completed! SettingsLoaded!");
+                    console.log("GameDataManager | Promise completed! SettingsLoaded!");
                     resolve();
                 }
             };
@@ -83,4 +107,21 @@ export class GameSettingsManager extends Component {
         const heroData = this._heroesJsonData?.heroes;
         return heroData;
     }
+
+    public getHeroIconSpriteFrame(heroId:string) : SpriteFrame | null{
+        const heroIcon = this.heroIconSpriteDictList.filter(icon => icon.heroId == heroId);
+        return heroIcon[0].heroSpriteFrame;
+    }
+
+    public getRankSpriteFrame(rankId:string) : SpriteFrame | null{
+        const rankIcon = this.rankSpriteDictList.filter(icon => icon.rankId == rankId);
+        return rankIcon[0].rankSpriteFrame;
+    }
+
+    public getElementSpriteFrame(elementId:string) : SpriteFrame | null{
+        const elementIcon = this.elementSpriteDictList.filter(icon => icon.elementId == elementId);
+        return elementIcon[0].elementSpriteFrame;
+    }
 }
+
+
