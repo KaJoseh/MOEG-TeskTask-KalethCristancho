@@ -58,6 +58,10 @@ export class BuildingPanelViewModel{
         return this._enableHireButton.asObservable();
     }
 
+    private _isPanelVisible:boolean = false;
+    public get isPanelVisible(){
+        return this._isPanelVisible;
+    }
     private _isAnyHeroIconSelected = false;
     public get isAnyHeroIconSelected(){
         return this._isAnyHeroIconSelected;
@@ -68,7 +72,6 @@ export class BuildingPanelViewModel{
     private _selectedHeroIconViewModel:HeroIconViewModel | null = null;
     private _currentOnHireCallback:(hiredHero:HeroData) => void = (hiredHero:HeroData) => void {};
     
-    private _isPanelVisible:boolean = false;
     private _canHire:boolean = true;    
 
     private _towerQueueSubscription:Subscription = new Subscription;

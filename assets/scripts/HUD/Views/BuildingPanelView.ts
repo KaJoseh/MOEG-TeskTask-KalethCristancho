@@ -115,6 +115,10 @@ export class BuildingPanelView extends Component {
         viewModel.openPanel(buildingData, towerQueue$, onHireCallback);
     }
 
+    public isPanelVisible():boolean{
+        return this.getViewModel().isPanelVisible;
+    }
+
     private togglePanelView(toggleValue:boolean){
         if(toggleValue){
             this._hideAnimation.stop();

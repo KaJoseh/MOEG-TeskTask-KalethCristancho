@@ -119,6 +119,13 @@ export class HUDManager extends Component {
         }
     }
 
+    public isBuildingPanelOpen():boolean{
+        if(this.buildingPanelView){
+            return this.buildingPanelView.isPanelVisible();
+        }
+        return false;
+    }
+
     private handleMoneyUpdated(onMoneyUpdatedArgs:OnMoneyUpdatedArgs){
         //Do animation
         if(this.currencyPanelView){

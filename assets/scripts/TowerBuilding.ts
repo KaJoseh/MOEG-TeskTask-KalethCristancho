@@ -3,6 +3,7 @@ import { Observable, Subject } from 'rxjs';
 import { GameSettingsManager } from './GameSettingsManager';
 import { IHasProgress } from './IHasProgress';
 import { BuildingData, HeroData } from './GameData';
+import { HUDManager } from './HUD/HUDManager';
 const { ccclass, property } = _decorator;
 
 enum State{
@@ -45,6 +46,8 @@ export class TowerBuilding extends Component {
     private buildingId: string = "";
     @property(Node)
     private towerSpriteNode:Node | null = null;
+    @property(Node)
+    private summoningIcon:Node | null = null;
     
     private _buildingData:BuildingData | undefined;
     private _towerState:State = State.Idle;
@@ -78,6 +81,10 @@ export class TowerBuilding extends Component {
     }
 
     protected update(dt: number): void {
+        if(this.summoningIcon){
+            const displaySummoningIcon = this._towerState === State.Summoning && !HUDManager.Instance?.isBuildingPanelOpen();
+            this.summoningIcon.active = displaySummoningIcon;
+        }
 
         switch(this._towerState){
             case State.Idle:
@@ -102,7 +109,6 @@ export class TowerBuilding extends Component {
                         this._towerState = State.Idle;
                         break;
                     }
-
                     this.startNextSummon();
                 }
                 break;
