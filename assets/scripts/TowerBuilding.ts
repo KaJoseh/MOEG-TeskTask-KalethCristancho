@@ -4,6 +4,7 @@ import { GameSettingsManager } from './GameSettingsManager';
 import { IHasProgress } from './IHasProgress';
 import { BuildingData, HeroData } from './GameData';
 import { HUDManager } from './HUD/HUDManager';
+import { TroopsManagers } from './TroopsManagers';
 const { ccclass, property } = _decorator;
 
 enum State{
@@ -102,14 +103,7 @@ export class TowerBuilding extends Component {
                 if(this._currentCooldownValue <= 0){
                     //Summoned
                     console.log("hero summoned!");
-                    this._summoningHeroesArray.shift();
-                    if(!this.hasPendingSummons()){
-                        //Call _onTowerSummoningHero one last time to notify it has finished
-                        this._onTowerSummoningHero.next(new OnTowerSummoningHeroArgs([], 0)); 
-                        this._towerState = State.Idle;
-                        break;
-                    }
-                    this.startNextSummon();
+                    this.handleHeroSummoned();
                 }
                 break;
         }
@@ -128,6 +122,20 @@ export class TowerBuilding extends Component {
 
     private hasPendingSummons(){
         return this._summoningHeroesArray.length > 0;
+    }
+
+    private handleHeroSummoned(){
+        const heroSummoned = this._summoningHeroesArray[0];
+        TroopsManagers.Instance?.addHeroToSummonedArray(heroSummoned);
+
+        this._summoningHeroesArray.shift();
+        if(!this.hasPendingSummons()){
+            //Call _onTowerSummoningHero one last time to notify it has finished
+            this._onTowerSummoningHero.next(new OnTowerSummoningHeroArgs([], 0)); 
+            this._towerState = State.Idle;
+            return;
+        }
+        this.startNextSummon();
     }
 
     private onHeroHiredCallback(hiredHero:HeroData){

@@ -6,6 +6,8 @@ import { onAnyTowerBuildingClickedArgs, OnTowerSummoningHeroArgs, TowerBuilding 
 import { BuildingData, HeroData } from '../GameData';
 import { EconomyManager, OnMoneyUpdatedArgs } from '../EconomyManager';
 import { CurrencyPanelView } from './Views/CurrencyPanelView';
+import { TroopsManagers } from '../TroopsManagers';
+import { SignpostView } from './Views/SignpostView';
 const { ccclass, property } = _decorator;
 
 @ccclass('HeroSpriteDictionary')
@@ -41,6 +43,8 @@ export class HUDManager extends Component {
     private buildingPanelView:BuildingPanelView | null = null;
     @property(CurrencyPanelView)
     private currencyPanelView:CurrencyPanelView | null = null;
+    @property(SignpostView)
+    private signpostView:SignpostView | null = null;
 
     @property({ type: [HeroSpriteDictionary] })
     private heroIconSpriteDictList: HeroSpriteDictionary[] = [];
@@ -61,6 +65,13 @@ export class HUDManager extends Component {
                 this.handleMoneyUpdated(onMoneyUpdatedArgs);
             });
             this._subscriptionsArray.push(onMoneyUpdatedSubscription);
+        }
+
+        if(TroopsManagers.Instance){
+            const onHeroesUpdated = TroopsManagers.Instance.onHeroesUpdated$.subscribe((summonedHeroes:HeroData[])=>{
+                this.handleSummonedHeroesUpdate(summonedHeroes);
+            });
+            this._subscriptionsArray.push(onHeroesUpdated);
         }
 
         const onAnyTowerClickedSubscription = TowerBuilding.onAnyTowerBuildingClicked$.subscribe((args: onAnyTowerBuildingClickedArgs) => {
@@ -124,6 +135,10 @@ export class HUDManager extends Component {
             return this.buildingPanelView.isPanelVisible();
         }
         return false;
+    }
+
+    private handleSummonedHeroesUpdate(summonedHeroes:HeroData[]){
+        this.signpostView?.handleSummonedHeroesUpdate(summonedHeroes);
     }
 
     private handleMoneyUpdated(onMoneyUpdatedArgs:OnMoneyUpdatedArgs){
