@@ -142,6 +142,11 @@ export class BuildingPanelViewModel{
         for (let i = 0; i < summoningSlotMax; i++) {
             let targetSummonSlotViewModel = this._summoningSlotViewModelArray[i];           
             if(i < towerSummoningQueue.length){
+                if(i == 0){
+                    const progressNormalized = onTowerSummoningHeroArgs.summonProgressNormalized;
+                    targetSummonSlotViewModel.updateSlot(towerSummoningQueue[i], progressNormalized);
+                    continue;
+                }
                 targetSummonSlotViewModel.updateSlot(towerSummoningQueue[i]);
                 continue;
             }

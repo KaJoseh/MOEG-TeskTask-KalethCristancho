@@ -35,6 +35,13 @@ export class SummoningSlotView extends Component {
         });
         this._subscriptionsArray.push(enableSlotValuesContainerSubscription);
 
+        const onProgressChangedSubscription = viewModel.onProgressChanged$.subscribe((progressNormalized:number) =>{
+            if(this.progressBarSprite){
+                this.progressBarSprite.fillRange = progressNormalized;
+            }
+        });
+        this._subscriptionsArray.push(onProgressChangedSubscription);
+
         const onSlotHeroDataSetSubscription = viewModel.onSlotHeroDataSet$.subscribe((slotHeroData:HeroData) =>{
             if(this.heroIconView){
                 this.heroIconView.getViewModel().setUpIcon(slotHeroData);
@@ -50,7 +57,6 @@ export class SummoningSlotView extends Component {
     public Init(slotHeroData: HeroData){
         const viewModel = this.getViewModel();
         this.heroIconView?.Init(slotHeroData);
-        //viewModel.setUpSlot(slotHeroData);
     }
 }
 

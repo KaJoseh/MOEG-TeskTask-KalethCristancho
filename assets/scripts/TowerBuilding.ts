@@ -24,11 +24,11 @@ export class onAnyTowerBuildingClickedArgs{
 
 export class OnTowerSummoningHeroArgs{
     incomingHeroesDataQueue:HeroData[];
-    currentSummoningProgressValue:number;
+    summonProgressNormalized:number;
 
-    constructor(incomingHeroesDataQueue:HeroData[], currentSummoningProgressValue:number){
+    constructor(incomingHeroesDataQueue:HeroData[], summonProgressNormalized:number){
         this.incomingHeroesDataQueue = incomingHeroesDataQueue;
-        this.currentSummoningProgressValue = currentSummoningProgressValue;
+        this.summonProgressNormalized = summonProgressNormalized;
     }
 }
 
@@ -60,6 +60,7 @@ export class TowerBuilding extends Component {
     private _buildingData:BuildingData | undefined;
     private _towerState:State = State.Idle;
     private _summoningHeroesArray: HeroData[] = [];
+    private _currentCooldownValueMax:number = 0;
     private _currentCooldownValue:number = 0;
 
     protected onLoad(): void {
@@ -96,12 +97,12 @@ export class TowerBuilding extends Component {
             case State.Summoning:
                 this._currentCooldownValue -= dt;
 
+                let normalizedCooldown = 1 - (this._currentCooldownValue / this._currentCooldownValueMax);
                 this._onTowerSummoningHero.next(new OnTowerSummoningHeroArgs(
                     this._summoningHeroesArray, 
-                    this._currentCooldownValue
+                    normalizedCooldown
                 ));
 
-                // console.log(`currCooldown:${this._summoningHeroesArray.length} | Tower state: ${State[this._towerState]}`);
                 if(this._currentCooldownValue <= 0){
                     //Summoned
                     console.log("hero summoned!");
@@ -146,6 +147,6 @@ export class TowerBuilding extends Component {
 
     private startNextSummon(){
         const currentSummonSlot = this._summoningHeroesArray[0];
-        this._currentCooldownValue = currentSummonSlot.summonCooldown;
+        this._currentCooldownValueMax = this._currentCooldownValue = currentSummonSlot.summonCooldown;
     }
 }
