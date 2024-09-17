@@ -1,9 +1,12 @@
 import { _decorator, Button, Component, instantiate, Label, Node, Prefab, Tween, tween, Vec2, Vec3, view } from 'cc';
 import { BuildingPanelViewModel, HeroIconListToCreateArgs, OnPanelSettingsSetArgs } from '../ViewModels/BuildingPanelViewModel';
-import { Subscription } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { HeroIconView } from './HeroIconView';
 import { HeroIconViewModel } from '../ViewModels/HeroIconViewModel';
 import { BuildingData, HeroData } from '../../GameData';
+import { SummoningSlotView } from './SummoningSlotView';
+import { SummoningSlotViewModel } from '../ViewModels/SummoningSlotViewModel';
+import { OnTowerSummoningHeroArgs } from '../../TowerBuilding';
 const { ccclass, property } = _decorator;
 
 @ccclass('BuildingPanelView')
@@ -106,9 +109,9 @@ export class BuildingPanelView extends Component {
        this.setUpAnimations();
     }
 
-    public openPanel(buildingData: BuildingData, onHireCallback:(hiredHero:HeroData) => void){
+    public openPanel(buildingData: BuildingData, towerQueue$:Observable<OnTowerSummoningHeroArgs>, onHireCallback:(hiredHero:HeroData) => void){
         const viewModel = this.getViewModel();
-        viewModel.openPanel(buildingData, onHireCallback);
+        viewModel.openPanel(buildingData, towerQueue$, onHireCallback);
     }
 
     private togglePanelView(toggleValue:boolean){
@@ -129,6 +132,7 @@ export class BuildingPanelView extends Component {
             }
         });
 
+        let summoningSlotViewModelArray: SummoningSlotViewModel [] = [];
         for (let i = 0; i < slotsCount; i++) {
             let newSummonSlot = instantiate(this.summonSlotBase);
             if(!newSummonSlot){
@@ -138,7 +142,13 @@ export class BuildingPanelView extends Component {
             newSummonSlot.parent = this.summonSlotListContainer;
             newSummonSlot.setPosition(0,0,0);
             newSummonSlot.active = true;
+
+            const newSlotView = newSummonSlot.getComponent(SummoningSlotView);
+            if(newSlotView){
+                summoningSlotViewModelArray.push(newSlotView.getViewModel())
+            }
         }
+        this._viewmodel?.setCurrentSummoningSlotViewModelArray(summoningSlotViewModelArray);
     }
 
     private handleHeroIcons(iconsHeroData: HeroData[]){
@@ -148,7 +158,7 @@ export class BuildingPanelView extends Component {
             }
         });
 
-        let currentHeroIconViewModelArray: HeroIconViewModel[] = [];
+        let heroIconViewModelArray: HeroIconViewModel[] = [];
         iconsHeroData.forEach(heroData => {
             let newIcon = instantiate(this.heroIconBase);
             if(!newIcon){
@@ -162,7 +172,7 @@ export class BuildingPanelView extends Component {
             const newIconView = newIcon.getComponent(HeroIconView);
             if(newIconView){
                 newIconView.Init(heroData);
-                currentHeroIconViewModelArray.push(newIconView.getViewModel());
+                heroIconViewModelArray.push(newIconView.getViewModel());
                 
                 newIcon.on(Button.EventType.CLICK, (button: Button) => {
                     this._viewmodel?.selectHeroIcon(newIconView.getViewModel());
@@ -170,7 +180,7 @@ export class BuildingPanelView extends Component {
             }
         });
 
-        this._viewmodel?.setCurrentHeroIconViewModelArray(currentHeroIconViewModelArray);
+        this._viewmodel?.setCurrentHeroIconViewModelArray(heroIconViewModelArray);
     }
 
     private setUpAnimations(){

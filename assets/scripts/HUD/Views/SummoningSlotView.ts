@@ -1,16 +1,17 @@
 import { _decorator, Component, Node, Sprite } from 'cc';
 import { SummoningSlotViewModel } from '../ViewModels/SummoningSlotViewModel';
+import { HeroIconView } from './HeroIconView';
+import { HeroData } from '../../GameData';
+import { Subscription } from 'rxjs';
 const { ccclass, property } = _decorator;
 
 @ccclass('SummoningSlotView')
 export class SummoningSlotView extends Component {
     
-    @property(Sprite)
-    private heroIconSprite:Sprite | null = null;
-    @property(Sprite)
-    private rankIconSprite:Sprite | null = null;
-    @property(Sprite)
-    private elementIconSprite:Sprite | null = null;
+    @property(HeroIconView)
+    private heroIconView:HeroIconView | null = null;
+    @property(Node)
+    private slotValuesContainer:Node | null = null;
     @property(Sprite)
     private progressBarSprite:Sprite | null = null;
 
@@ -22,10 +23,35 @@ export class SummoningSlotView extends Component {
         return this._viewmodel;
     }
 
-    protected onLoad(): void {
+    private _subscriptionsArray:Subscription[] = [];
 
+    protected onLoad(): void {
+        const viewModel = this.getViewModel();
+        
+        const enableSlotValuesContainerSubscription = viewModel.displaySlotValues$.subscribe((value: boolean)=>{
+            if(this.slotValuesContainer){
+                this.slotValuesContainer.active = value;
+            }
+        });
+        this._subscriptionsArray.push(enableSlotValuesContainerSubscription);
+
+        const onSlotHeroDataSetSubscription = viewModel.onSlotHeroDataSet$.subscribe((slotHeroData:HeroData) =>{
+            if(this.heroIconView){
+                this.heroIconView.getViewModel().setUpIcon(slotHeroData);
+            }
+        });
+        this._subscriptionsArray.push(onSlotHeroDataSetSubscription);
     }
 
+    protected onDestroy(): void {
+        this._subscriptionsArray.forEach(sub => sub.unsubscribe());
+    }
+
+    public Init(slotHeroData: HeroData){
+        const viewModel = this.getViewModel();
+        this.heroIconView?.Init(slotHeroData);
+        //viewModel.setUpSlot(slotHeroData);
+    }
 }
 
 

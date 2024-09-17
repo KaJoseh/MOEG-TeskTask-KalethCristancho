@@ -1,9 +1,11 @@
 import { Vec2 } from "cc";
-import { BehaviorSubject, Subject } from "rxjs";
+import { BehaviorSubject, Observable, Subject, Subscription } from "rxjs";
 import { HUDClicksManager } from "../HUDClicksManager";
 import { HUDManager } from "../HUDManager";
 import { HeroIconViewModel } from "./HeroIconViewModel";
 import { BuildingData, HeroData } from "../../GameData";
+import { SummoningSlotViewModel } from "./SummoningSlotViewModel";
+import { OnTowerSummoningHeroArgs } from "../../TowerBuilding";
 
 export class OnPanelSettingsSetArgs{
     buildingName:string;
@@ -45,11 +47,14 @@ export class BuildingPanelViewModel{
         return this._hireButtonPriceValue.asObservable();
     }
 
-    private _currentOnHireCallback:(hiredHero:HeroData) => void = (hiredHero:HeroData) => void {};
+    private _summoningSlotViewModelArray:SummoningSlotViewModel [] = [];
+    private _heroIconViewModelArray:HeroIconViewModel[] = [];
     private _selectedHeroIconViewModel:HeroIconViewModel | null = null;
-    private _currentHeroIconViewModelArray:HeroIconViewModel[] = [];
+    private _currentOnHireCallback:(hiredHero:HeroData) => void = (hiredHero:HeroData) => void {};
     
     private _isPanelVisible:boolean = false;
+
+    private _towerQueueSubscription:Subscription = new Subscription;
 
     constructor(){
         HUDClicksManager.Instance?.onHUDClicked$.subscribe((clickPosition: Vec2) => {
@@ -57,12 +62,14 @@ export class BuildingPanelViewModel{
         });
     }
 
-    public openPanel(buildingData: BuildingData, onHireCallback:(hiredHero:HeroData) => void){
+    public openPanel(buildingData: BuildingData, towerQueue$:Observable<OnTowerSummoningHeroArgs>, onHireCallback:(hiredHero:HeroData) => void){
         this.togglePanel(!this._isPanelVisible)
         if(this._isPanelVisible){
             this._selectedHeroIconViewModel = null;
-            this._currentHeroIconViewModelArray = [];
+            this._summoningSlotViewModelArray = [];
+            this._heroIconViewModelArray = [];
             this._enableHireButton.next(false);
+            this._towerQueueSubscription.unsubscribe();
 
             const newOnPanelSettingsSetArgs = new OnPanelSettingsSetArgs(
                 buildingData.name,
@@ -75,6 +82,12 @@ export class BuildingPanelViewModel{
             buildingData.settings.summonableHeroes.forEach(hero =>{
                 heroIconsToCreate.push(hero);
             });
+            
+            const towerQueueSubscription = towerQueue$.subscribe( (onTowerSummoningHeroArgs:OnTowerSummoningHeroArgs)=>{
+                this.SetSummoningSlotsDataValues(onTowerSummoningHeroArgs);
+            });
+            this._towerQueueSubscription = towerQueueSubscription;
+            
             const newHeroIconListToCreateArgs = new HeroIconListToCreateArgs(heroIconsToCreate);
             this._heroIconListToCreate.next(newHeroIconListToCreateArgs);
             this._currentOnHireCallback = onHireCallback;
@@ -93,7 +106,7 @@ export class BuildingPanelViewModel{
 
     public selectHeroIcon(selectedIcon:HeroIconViewModel){
         this._selectedHeroIconViewModel = selectedIcon;
-        this._currentHeroIconViewModelArray.forEach(heroIcon => {
+        this._heroIconViewModelArray.forEach(heroIcon => {
             const displayIconSelectedFrame = heroIcon === this._selectedHeroIconViewModel;
             heroIcon.toggleSelected(displayIconSelectedFrame);
         });
@@ -106,7 +119,12 @@ export class BuildingPanelViewModel{
     }
 
     public setCurrentHeroIconViewModelArray(heroIconViewModelArray: HeroIconViewModel[]){
-        this._currentHeroIconViewModelArray = heroIconViewModelArray;
+        this._heroIconViewModelArray = heroIconViewModelArray;
+    }
+
+    public setCurrentSummoningSlotViewModelArray(summoningSlotViewModelArray: SummoningSlotViewModel[]){
+        console.log(`set summon slots length: ${summoningSlotViewModelArray.length}`);
+        this._summoningSlotViewModelArray = summoningSlotViewModelArray;
     }
 
     public hireSelectedHero(){
@@ -114,6 +132,23 @@ export class BuildingPanelViewModel{
         const selectedIconHeroData = this._selectedHeroIconViewModel?.iconHeroData;
         if(selectedIconHeroData){
             this._currentOnHireCallback(selectedIconHeroData);
+        }
+    }
+
+    private SetSummoningSlotsDataValues(onTowerSummoningHeroArgs:OnTowerSummoningHeroArgs){
+        const summoningSlotMax = this._summoningSlotViewModelArray.length;
+        const towerSummoningQueue = onTowerSummoningHeroArgs.incomingHeroesDataQueue;
+        
+        for (let i = 0; i < summoningSlotMax; i++) {
+            let targetSummonSlotViewModel = this._summoningSlotViewModelArray[i];           
+            if(i < towerSummoningQueue.length){
+                targetSummonSlotViewModel.updateSlot(towerSummoningQueue[i]);
+                continue;
+            }
+            else{
+                targetSummonSlotViewModel.updateSlot(null);
+                continue;
+            }
         }
     }
 
