@@ -1,5 +1,6 @@
 import { Subject } from "rxjs";
 import { HeroData } from "../../GameData";
+import { HUDManager } from "../HUDManager";
 
 export class OnSummonedHeroesUpdatedArgs{
     enableSignpost:boolean;
@@ -26,6 +27,13 @@ export class SignpostViewModel {
         const enableSignpost = summonedHeroes.length > 0;
         const onSummonedHeroesUpdateArgs = new OnSummonedHeroesUpdatedArgs(enableSignpost, summonedHeroes.length);
         this._onSummonedHeroesUpdated.next(onSummonedHeroesUpdateArgs);
+    }
+
+    public canSetButtonInteractable():boolean{
+        if(HUDManager.Instance){
+            return !HUDManager.Instance.isHallOfHeroesPanelOpen();
+        }
+        return false;
     }
 }
 

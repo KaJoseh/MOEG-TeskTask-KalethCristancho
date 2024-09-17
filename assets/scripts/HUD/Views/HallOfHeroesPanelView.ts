@@ -33,16 +33,17 @@ export class HallOfHeroesPanelView extends Component {
         const onElementsContainerToggledSubscription = viewModel.onElementsContainerToggled$.subscribe((value:boolean) =>{
             if(this.elementsContainer){
                 this.elementsContainer.active = value;
-                if(this.elementsContainer.active){
-                    this.createHeroHallSlots(viewModel.heroesSlotInHallArray);
-                }
+            }
+
+            if(value){
+                this.updateHeroHallSlots(viewModel.heroesSlotInHallArray);
             }
         });
         this._subscriptionsArray.push(onElementsContainerToggledSubscription);
 
         if(this.closePanelButton){
             this.closePanelButton.node.on(Button.EventType.CLICK, (button:Button) =>{
-                this.togglePanel(false);
+                viewModel.onClosePanelButtonClicked();
             });
         }
     }
@@ -51,15 +52,20 @@ export class HallOfHeroesPanelView extends Component {
         this._subscriptionsArray.forEach(sub => sub.unsubscribe());
     }
 
-    public setupHallOfHeroes(summonedHeroes:HeroData[]){
+    public updateHallOfHeroes(summonedHeroes:HeroData[]){
         this.getViewModel().updateHallOfHeroesData(summonedHeroes);
+        this.updateHeroHallSlots(this.getViewModel().heroesSlotInHallArray);
     }
 
     public togglePanel(value:boolean){
         this.getViewModel().toggleElementsContainer(value);
     }
 
-    private createHeroHallSlots(summonedHeroesData:HeroData[]){
+    public isPanelVisible():boolean{
+        return this.getViewModel().isPanelVisible;
+    }
+
+    private updateHeroHallSlots(summonedHeroesData:HeroData[]){
         this.heroHallSlotsContainer?.children.forEach(child =>{
             if(child !== this.heroHallSlotBase && child.isValid){
                 child.destroy();

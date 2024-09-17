@@ -198,7 +198,7 @@ export class BuildingPanelViewModel{
         return false;
     }
 
-    private togglePanel(toggleValue:boolean){
+    public togglePanel(toggleValue:boolean){
         this._isPanelVisible = toggleValue;
         this.togglePanelVisible$.next(this._isPanelVisible);
     }

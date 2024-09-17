@@ -56,8 +56,11 @@ export class HUDManager extends Component {
     @property({ type: [ElementSpriteDictionary] })
     private elementSpriteDictList: ElementSpriteDictionary[] = [];
 
+    private _onHallOfHeroesToggled$: Subject<boolean> = new Subject<boolean>();
+
     private _hudClicksManager:HUDClicksManager | null = null;
     private _subscriptionsArray:Subscription[] = [];
+
 
     protected onLoad(): void {
         HUDManager.Instance = this;
@@ -79,9 +82,25 @@ export class HUDManager extends Component {
         }
 
         const onAnyTowerClickedSubscription = TowerBuilding.onAnyTowerBuildingClicked$.subscribe((args: onAnyTowerBuildingClickedArgs) => {
+            if(this.isHallOfHeroesPanelOpen()){
+                return;
+            }
             this.openBuildingPanel(args.buildingData, args.towerSummonQueueObservable$, args.onHeroHiredCallback);
         });
         this._subscriptionsArray.push(onAnyTowerClickedSubscription);
+
+        const onHallOfHeroesToggledSubscription = this._onHallOfHeroesToggled$.subscribe((value:boolean) =>{
+            if(this.signpostView){
+                const signPostButton = this.signpostView.getComponent(Button);
+                if(signPostButton){
+                    signPostButton.interactable = !value;
+                }
+            }
+            if(value){
+                this.closeOpenedPanels();
+            }
+        });
+        this._subscriptionsArray.push(onHallOfHeroesToggledSubscription);
 
         if(this.buildingPanelView){
             const buildingPanelViewModel = this.buildingPanelView.getViewModel();
@@ -97,9 +116,7 @@ export class HUDManager extends Component {
     protected start(): void {
         if(this.signpostView){
             this.signpostView.node.on(Button.EventType.CLICK, (button:Button) =>{
-                if(this.hallOfHeroesPanelView){
-                    this.hallOfHeroesPanelView.togglePanel(true);
-                }
+                this.toggleHallOfHeroesVisibility(true);
             });
         }
     }
@@ -151,12 +168,30 @@ export class HUDManager extends Component {
         return false;
     }
 
+    public isHallOfHeroesPanelOpen():boolean{
+        if(this.hallOfHeroesPanelView){
+            return this.hallOfHeroesPanelView.isPanelVisible();
+        }
+        return false;
+    }
+
+    public toggleHallOfHeroesVisibility(value:boolean){
+        this.hallOfHeroesPanelView?.togglePanel(value);
+        this._onHallOfHeroesToggled$.next(value);
+    }
+
+    private closeOpenedPanels(){
+        if(this.buildingPanelView && this.isBuildingPanelOpen()){
+            this.buildingPanelView.closePanel();
+        }
+    }
+
     private handleSummonedHeroesUpdate(summonedHeroes:HeroData[]){
         this.signpostView?.handleSummonedHeroesUpdate(summonedHeroes);
     }
 
     private updateHallOfHeroes(summonedHeroes:HeroData[]){
-        this.hallOfHeroesPanelView?.setupHallOfHeroes(summonedHeroes);
+        this.hallOfHeroesPanelView?.updateHallOfHeroes(summonedHeroes);
     }
 
     private handleMoneyUpdated(onMoneyUpdatedArgs:OnMoneyUpdatedArgs){

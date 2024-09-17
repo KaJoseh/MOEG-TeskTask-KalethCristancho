@@ -26,7 +26,7 @@ export class SignpostView extends Component {
         const viewModel = this.getViewModel();
 
         const summonedHeroesUpdateSubscription = viewModel.onSummonedHeroesUpdated$.subscribe((onSummonedHeroesUpdateArgs:OnSummonedHeroesUpdatedArgs) => {
-            if(this.signpostButton){
+            if(this.signpostButton && viewModel.canSetButtonInteractable()){
                 this.signpostButton.interactable = onSummonedHeroesUpdateArgs.enableSignpost;
             }
             if(this.signpostHeroesCountLabel){
