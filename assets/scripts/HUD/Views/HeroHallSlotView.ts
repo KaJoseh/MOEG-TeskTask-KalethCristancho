@@ -53,7 +53,7 @@ export class HeroHallSlotView extends Component {
                 this.heroTypeLabel.string = `Type:${heroSlotData.type.toUpperCase()}`
             }
             if(this.heroCostLabel){
-                this.heroCostLabel.string = `Type:${heroSlotData.cost}`
+                this.heroCostLabel.string = `Cost:${heroSlotData.cost}`
             }
             if(this.heroCooldownLabel){
                 this.heroCooldownLabel.string = `Summoning time:${heroSlotData.summonCooldown}`
